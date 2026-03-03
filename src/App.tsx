@@ -1,0 +1,584 @@
+import { Sparkles, MessageCircle, Globe, MapPin, ArrowRight, Star, Heart, Calendar, ChevronRight, Search, User, Play, Send, Palette, Stethoscope, Scissors, Zap, Shield, Clock, TrendingUp } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' as const } },
+};
+
+const stagger = {
+  visible: { transition: { staggerChildren: 0.15 } },
+};
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.92 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: 'easeOut' as const } },
+};
+
+function App() {
+  return (
+    <div className="bg-background min-h-screen text-text font-sans">
+
+      {/* ───── Navbar ───── */}
+      <nav className="fixed top-4 left-4 right-4 z-50 glass-hero rounded-2xl px-6 md:px-8 py-3 flex items-center justify-between max-w-7xl mx-auto">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-light flex items-center justify-center">
+            <Sparkles className="text-white w-4 h-4" />
+          </div>
+          <span className="text-xl font-bold tracking-tighter">GL<span className="text-gradient">OO</span></span>
+        </div>
+        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-text-muted">
+          <a href="#features" className="hover:text-primary transition-colors">기능</a>
+          <a href="#chat" className="hover:text-primary transition-colors">AI 채팅</a>
+          <a href="#shop" className="hover:text-primary transition-colors">탐색</a>
+          <a href="#beauty-clip" className="hover:text-primary transition-colors">뷰티 클립</a>
+        </div>
+        <button className="btn-primary px-5 py-2 text-sm cursor-pointer">앱 다운로드</button>
+      </nav>
+
+      {/* ═══════════════════════════════════════
+          HERO — 풀스크린 3D + 흰색 글로우 타이틀
+      ═══════════════════════════════════════ */}
+      <section className="relative w-full h-screen overflow-hidden">
+        {/* Spline 3D 배경 */}
+        <iframe
+          src="https://my.spline.design/blendtoollightcolor-xF3dhVj2fdhSiCZtChbuYsLZ/"
+          frameBorder="0"
+          className="absolute inset-0 w-full h-full"
+          title="GLOO 3D Visual"
+          style={{ pointerEvents: 'auto' }}
+        />
+
+        {/* 3D 위에 어두운 래디얼 오버레이 — 타이틀 가독성 확보 */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          background: 'radial-gradient(ellipse at center, rgba(30,15,50,0.25) 0%, transparent 70%)',
+        }}></div>
+
+        {/* Spline 워터마크 완벽 가림 — 크게 + 완전 불투명 */}
+        <div className="absolute bottom-0 right-0 w-[260px] h-[55px] z-30"
+          style={{ background: 'linear-gradient(135deg, rgba(210,190,245,1), rgba(230,200,235,1))' }}
+        ></div>
+
+        {/* 중앙 타이틀 — 흰색 글로우 */}
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.3 }}
+            className="text-center pointer-events-auto"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-hero text-xs font-semibold text-white mb-6"
+              style={{ textShadow: '0 1px 4px rgba(0,0,0,0.15)' }}
+            >
+              <Zap className="w-3.5 h-3.5" />
+              AI 기반 K-뷰티 예약 플랫폼
+            </motion.div>
+            <h1 className="hero-title text-5xl md:text-7xl lg:text-[5.5rem] font-bold leading-[1.05] tracking-tight mb-5">
+              당신의 모든<br />
+              <span className="text-gradient-bright">K-뷰티</span>
+              <span>,</span><br />
+              하나의 앱으로
+            </h1>
+            <p className="hero-subtitle text-sm md:text-base mb-8 max-w-md mx-auto leading-relaxed">
+              예산과 취향만 알려주세요.<br />
+              AI가 최적의 뷰티샵을 찾아 예약까지 완료합니다.
+            </p>
+            <div className="flex gap-3 justify-center">
+              <button className="btn-primary px-7 py-3.5 text-sm flex items-center gap-2 group cursor-pointer">
+                AI 상담 시작하기
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+              <button className="glass-hero px-7 py-3.5 rounded-full text-sm font-medium text-white hover:bg-white/20 transition-colors cursor-pointer" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
+                뷰티샵 둘러보기
+              </button>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* 좌측 하단 — 사용자 배지 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2, duration: 0.6 }}
+          className="absolute bottom-8 left-8 md:bottom-12 md:left-12 z-20 glass-hero rounded-2xl px-5 py-3 flex items-center gap-4"
+        >
+          <div className="flex -space-x-2">
+            {[11, 12, 13, 14].map((i) => (
+              <img key={i} src={`https://i.pravatar.cc/80?img=${i}`} alt="사용자" className="w-8 h-8 rounded-full border-2 border-white/50 object-cover" />
+            ))}
+          </div>
+          <div className="text-xs text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
+            <span className="font-bold text-sm">150K+</span>
+            <p className="opacity-80">글로벌 사용자</p>
+          </div>
+        </motion.div>
+
+        {/* 우측 하단 — 프리미엄 챗봇 */}
+        <motion.div
+          initial={{ opacity: 0, y: 30, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="absolute bottom-8 right-8 md:bottom-12 md:right-12 z-20 w-[320px] hidden lg:block"
+        >
+          <div className="glass-premium rounded-3xl overflow-hidden animate-pulse-glow">
+            <div className="bg-gradient-to-r from-primary/90 to-primary-light/90 backdrop-blur px-5 py-3 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <p className="font-bold text-xs text-white">GLOO AI 컨시어지</p>
+                <p className="text-[10px] text-white/70">항상 온라인 · 3개 국어 지원</p>
+              </div>
+              <div className="ml-auto w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+            </div>
+            <div className="p-4 space-y-2.5 max-h-[200px] overflow-hidden">
+              <div className="flex justify-end">
+                <div className="bg-gradient-to-br from-primary to-primary-light text-white text-[11px] px-3 py-2 rounded-2xl rounded-tr-sm max-w-[80%] shadow-sm">
+                  강남에서 피부 시술 추천해줘 💆‍♀️
+                </div>
+              </div>
+              <div className="flex justify-start">
+                <div className="bg-white/80 text-text text-[11px] px-3 py-2 rounded-2xl rounded-tl-sm max-w-[85%] shadow-sm">
+                  <p className="mb-1.5 font-medium">추천 클리닉 3곳이에요! ✨</p>
+                  <div className="space-y-1">
+                    {[
+                      { name: '루미스킨', price: '₩280,000', star: '4.9' },
+                      { name: '하나피부과', price: '₩250,000', star: '4.8' },
+                      { name: '서울글로우', price: '₩320,000', star: '4.9' },
+                    ].map((c, i) => (
+                      <div key={i} className="bg-white rounded-lg px-2.5 py-1.5 flex items-center justify-between shadow-sm">
+                        <span className="font-medium">{c.name}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-amber-500 flex items-center gap-0.5"><Star className="w-2.5 h-2.5 fill-amber-400" />{c.star}</span>
+                          <span className="text-primary font-bold">{c.price}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <div className="bg-gradient-to-br from-primary to-primary-light text-white text-[11px] px-3 py-2 rounded-2xl rounded-tr-sm shadow-sm">
+                  루미스킨 예약해줘! 🙏
+                </div>
+              </div>
+            </div>
+            <div className="px-4 pb-4">
+              <div className="flex items-center gap-2 bg-white/60 rounded-full px-3 py-2 border border-white/50">
+                <input type="text" placeholder="메시지를 입력하세요..." className="flex-1 bg-transparent text-[11px] outline-none placeholder:text-text-muted" readOnly />
+                <button className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white shrink-0 cursor-pointer shadow-md">
+                  <Send className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* ───── 신뢰 지표 밴드 ───── */}
+      <section className="py-6 bg-gradient-to-r from-primary/5 via-secondary/5 to-primary-light/5">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-wrap justify-center gap-8 md:gap-16 items-center text-text-muted text-sm">
+            {[
+              { icon: <Shield className="w-4 h-4 text-primary" />, text: '검증된 4,000+ 뷰티샵' },
+              { icon: <Globe className="w-4 h-4 text-primary" />, text: '3개 국어 실시간 번역' },
+              { icon: <Clock className="w-4 h-4 text-primary" />, text: '평균 예약 소요 2분' },
+              { icon: <Star className="w-4 h-4 text-primary" />, text: '평균 평점 4.8' },
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-2 font-medium">{item.icon}{item.text}</div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ───── 기능 소개 (그라데이션 보더 + 호버 리프트) ───── */}
+      <section id="features" className="py-24 md:py-32 relative overflow-hidden">
+        <div className="absolute top-20 -left-40 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px]"></div>
+        <div className="absolute bottom-20 -right-40 w-[300px] h-[300px] bg-secondary/10 rounded-full blur-[100px]"></div>
+        <div className="container mx-auto px-6 relative">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={fadeUp} className="text-center max-w-3xl mx-auto mb-20">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-xs font-semibold text-primary mb-6">
+              <Sparkles className="w-3.5 h-3.5" />
+              핵심 기능
+            </div>
+            <h2 className="text-4xl md:text-6xl font-bold mb-6">뷰티 여정을<br /><span className="text-gradient">하나로 통합</span></h2>
+            <p className="text-text-muted text-base md:text-lg max-w-xl mx-auto">GLOO는 언어 장벽과 복잡한 예약 과정을 없앱니다.<br />필요한 모든 것이 앱 안에 있습니다.</p>
+          </motion.div>
+
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="grid md:grid-cols-3 gap-8">
+            {[
+              { icon: <MessageCircle className="w-7 h-7" />, grad: 'from-primary to-primary-light', title: 'AI 채팅 예약', desc: '원하는 시술, 일정, 예산을 AI에게 알려주세요. 검증된 최고의 뷰티샵을 매칭해 드립니다.', highlight: '2분 만에 예약 완료', stat: '98%', statLabel: '매칭 성공률' },
+              { icon: <Globe className="w-7 h-7" />, grad: 'from-violet-500 to-indigo-400', title: '실시간 자동 번역', desc: '영어, 일본어, 중국어로 자유롭게 대화하세요. 오역 걱정 없이 자연스러운 소통이 가능합니다.', highlight: '3개 국어 지원', stat: '99.2%', statLabel: '번역 정확도' },
+              { icon: <MapPin className="w-7 h-7" />, grad: 'from-fuchsia-500 to-pink-400', title: 'O2O 연계', desc: '지도 기반 검색과 일정 관리를 통합하여 온라인 예약부터 오프라인 뷰티 경험까지 원스톱으로.', highlight: '전국 4,000+ 매장', stat: '4,200+', statLabel: '제휴 매장' },
+            ].map((f, i) => (
+              <motion.div key={i} variants={scaleIn} className="glass-premium p-8 rounded-3xl card-hover cursor-pointer gradient-top-border">
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${f.grad} flex items-center justify-center mb-6 text-white shadow-lg`}>
+                  {f.icon}
+                </div>
+                <h3 className="text-xl font-bold mb-2">{f.title}</h3>
+                <span className="inline-block text-[10px] font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full mb-3">{f.highlight}</span>
+                <p className="text-text-muted leading-relaxed text-sm mb-5">{f.desc}</p>
+                <div className="pt-4 border-t border-purple-100 flex items-center gap-2">
+                  <span className="text-2xl font-bold text-gradient">{f.stat}</span>
+                  <span className="text-xs text-text-muted">{f.statLabel}</span>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ───── 온보딩 ───── */}
+      <section className="py-24 md:py-32 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFF 0%, #F0E8FF 50%, #F3EEFF 100%)' }}>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] -z-10"></div>
+        <div className="container mx-auto px-6">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="grid lg:grid-cols-2 gap-16 items-center">
+            <motion.div variants={fadeUp}>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-xs font-semibold text-primary mb-5">
+                <User className="w-3.5 h-3.5" />
+                온보딩
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">첫 탭부터<br /><span className="text-gradient">맞춤형으로</span></h2>
+              <p className="text-text-muted text-base leading-relaxed mb-8 max-w-md">
+                국적, 피부 타입, 관심 뷰티 분야를 알려주세요. GLOO가 모든 추천을 당신에게 맞춰 드립니다.
+              </p>
+              <div className="space-y-5">
+                {['국적 및 언어 선택', '관심 뷰티 분야 선택 (헤어, 스킨, 메디컬)', '피부 고민 간편 진단'].map((step, i) => (
+                  <div key={i} className="flex items-center gap-4 glass-premium p-4 rounded-2xl card-hover">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-light text-white flex items-center justify-center text-sm font-bold shrink-0 shadow-md">{i + 1}</div>
+                    <span className="text-sm font-medium">{step}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div variants={scaleIn} className="relative">
+              <div className="glass-premium rounded-3xl p-8 max-w-sm mx-auto animate-float">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-light mx-auto flex items-center justify-center text-white mb-4 shadow-lg">
+                    <Sparkles className="w-7 h-7" />
+                  </div>
+                  <h3 className="text-lg font-bold">무엇을 찾고 계세요?</h3>
+                  <p className="text-text-muted text-xs mt-1">해당되는 항목을 모두 선택하세요</p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { icon: <Scissors className="w-5 h-5" />, label: '헤어 살롱', active: true },
+                    { icon: <Palette className="w-5 h-5" />, label: '메이크업', active: false },
+                    { icon: <Heart className="w-5 h-5" />, label: '스킨케어', active: true },
+                    { icon: <Stethoscope className="w-5 h-5" />, label: '메디컬', active: false },
+                  ].map((item, i) => (
+                    <div key={i} className={`p-4 rounded-2xl flex flex-col items-center gap-2 text-sm font-medium transition-all cursor-pointer ${item.active ? 'bg-gradient-to-br from-primary to-primary-light text-white shadow-lg shadow-primary/20' : 'bg-white/60 text-text-muted hover:bg-white/80 hover:shadow-md'}`}>
+                      {item.icon}
+                      {item.label}
+                    </div>
+                  ))}
+                </div>
+                <button className="btn-primary w-full py-3 mt-6 text-sm cursor-pointer">계속하기</button>
+              </div>
+              <div className="absolute -top-10 -right-10 w-40 h-40 bg-secondary/30 rounded-full blur-3xl -z-10"></div>
+              <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-violet-200/30 rounded-full blur-3xl -z-10"></div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ───── AI 채팅 상세 (태그 업그레이드) ───── */}
+      <section id="chat" className="py-24 md:py-32 bg-background-light relative overflow-hidden">
+        <div className="absolute -top-20 -right-20 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px]"></div>
+        <div className="container mx-auto px-6 relative">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="grid lg:grid-cols-2 gap-16 items-center">
+            <motion.div variants={scaleIn} className="order-2 lg:order-1">
+              <div className="glass-premium rounded-3xl p-6 max-w-md mx-auto">
+                <div className="bg-gradient-to-r from-primary to-primary-light rounded-2xl px-5 py-3 flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-white">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm text-white">GLOO AI 컨시어지</p>
+                    <p className="text-[10px] text-white/70">항상 온라인 · 실시간 응답</p>
+                  </div>
+                </div>
+                <div className="space-y-3 mb-4">
+                  <div className="flex justify-end">
+                    <div className="bg-gradient-to-br from-primary to-primary-light text-white text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm max-w-[75%] shadow-sm">
+                      강남에서 30만원 정도 예산으로 피부 시술 받고 싶어요 💆‍♀️
+                    </div>
+                  </div>
+                  <div className="flex justify-start">
+                    <div className="bg-white/80 text-text text-sm px-4 py-2.5 rounded-2xl rounded-tl-sm max-w-[75%] shadow-sm">
+                      <p className="mb-2 font-medium">추천 클리닉 3곳을 찾았습니다! ✨</p>
+                      <div className="space-y-1.5">
+                        {['✨ 루미스킨 — ₩280,000', '🌿 하나피부과 — ₩250,000', '💎 서울글로우 — ₩320,000'].map((c, i) => (
+                          <div key={i} className="bg-white rounded-xl px-3 py-2 text-xs font-medium shadow-sm border border-purple-50">{c}</div>
+                        ))}
+                      </div>
+                      <p className="mt-2">예약해 드릴까요? 🗓️</p>
+                    </div>
+                  </div>
+                  <div className="flex justify-end">
+                    <div className="bg-gradient-to-br from-primary to-primary-light text-white text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm shadow-sm">
+                      루미스킨 3월 10일로 예약해 주세요! 🙏
+                    </div>
+                  </div>
+                  <div className="flex justify-start">
+                    <div className="bg-white/80 text-text text-sm px-4 py-2.5 rounded-2xl rounded-tl-sm max-w-[75%] shadow-sm">
+                      ✅ 루미스킨 클리닉, 3월 10일 오후 2시 예약 완료!
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 bg-white/60 rounded-full px-4 py-2 border border-white/50">
+                  <input type="text" placeholder="메시지를 입력하세요..." className="flex-1 bg-transparent text-sm outline-none placeholder:text-text-muted" readOnly />
+                  <button className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white shrink-0 cursor-pointer shadow-md">
+                    <Send className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div variants={fadeUp} className="order-1 lg:order-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-xs font-semibold text-primary mb-5">
+                <MessageCircle className="w-3.5 h-3.5" />
+                AI 채팅
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">채팅 한 번으로<br /><span className="text-gradient">모든 예약 완료</span></h2>
+              <p className="text-text-muted text-base leading-relaxed mb-8 max-w-md">
+                수백 개의 리스트를 둘러볼 필요 없습니다. 원하는 시술, 지역, 예산을 AI에게 말하면 즉시 맞춤 클리닉과 살롱을 매칭합니다.
+              </p>
+              {/* 업그레이드된 기능 카드 */}
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { icon: <Globe className="w-5 h-5" />, label: '다국어 지원', desc: '한/영/일/중', color: 'from-violet-500 to-indigo-400' },
+                  { icon: <Zap className="w-5 h-5" />, label: '즉시 예약', desc: '평균 2분', color: 'from-primary to-primary-light' },
+                  { icon: <Search className="w-5 h-5" />, label: '가격 비교', desc: '최저가 보장', color: 'from-fuchsia-500 to-pink-400' },
+                  { icon: <Shield className="w-5 h-5" />, label: '인증된 리뷰', desc: '실명 인증', color: 'from-purple-500 to-violet-400' },
+                ].map((tag) => (
+                  <div key={tag.label} className="glass-premium px-4 py-4 rounded-2xl card-hover cursor-pointer">
+                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${tag.color} flex items-center justify-center text-white mb-3 shadow-md`}>{tag.icon}</div>
+                    <p className="font-bold text-sm">{tag.label}</p>
+                    <p className="text-xs text-text-muted">{tag.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ───── SHOP 탐색 (AI 이미지 적용) ───── */}
+      <section id="shop" className="py-24 md:py-32 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFF 0%, #F0E8FF 100%)' }}>
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-secondary/10 rounded-full blur-[120px] -z-10"></div>
+        <div className="container mx-auto px-6 relative">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={fadeUp} className="text-center max-w-3xl mx-auto mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-xs font-semibold text-primary mb-6">
+              <Search className="w-3.5 h-3.5" />
+              샵 & 탐색
+            </div>
+            <h2 className="text-4xl md:text-6xl font-bold mb-5">엄선된<br /><span className="text-gradient">뷰티 패키지</span></h2>
+            <p className="text-text-muted text-base md:text-lg">지역, 시술 종류, 가격대별로 검색하세요.<br />GLOO의 모든 살롱과 클리닉은 검증 완료된 곳입니다.</p>
+          </motion.div>
+
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              { name: '루미스킨 클리닉', location: '강남구, 서울', price: '₩250,000~', rating: 4.9, tags: ['페이셜', '레이저'], img: '/images/clinic_lumiskin.png' },
+              { name: 'JUNO HAIR 살롱', location: '홍대, 서울', price: '₩80,000~', rating: 4.8, tags: ['헤어', '컬러'], img: '/images/salon_junohair.png' },
+              { name: '서울글로우 피부과', location: '신사동, 서울', price: '₩350,000~', rating: 4.9, tags: ['보톡스', '필러'], img: '/images/clinic_seoulglow.png' },
+            ].map((shop, i) => (
+              <motion.div key={i} variants={scaleIn} className="glass-premium rounded-3xl overflow-hidden card-hover cursor-pointer img-card">
+                <div className="h-48 relative overflow-hidden">
+                  <img src={shop.img} alt={shop.name} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
+                  <div className="absolute top-4 right-4 glass-hero px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1 text-amber-600">
+                    <Star className="w-3 h-3 fill-amber-400 text-amber-400" /> {shop.rating}
+                  </div>
+                </div>
+                <div className="p-6">
+                  <h3 className="font-bold text-lg mb-1">{shop.name}</h3>
+                  <p className="text-text-muted text-xs flex items-center gap-1 mb-4"><MapPin className="w-3 h-3" /> {shop.location}</p>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex gap-2">
+                      {shop.tags.map((t) => <span key={t} className="bg-primary/10 text-primary px-2.5 py-1 rounded-full text-[10px] font-bold">{t}</span>)}
+                    </div>
+                    <span className="text-base font-bold text-gradient">{shop.price}</span>
+                  </div>
+                  <button className="w-full py-3 rounded-2xl btn-primary text-sm flex items-center justify-center gap-2 cursor-pointer">
+                    <Calendar className="w-4 h-4" /> 지금 예약
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ───── 스킨 리포트 (업그레이드) ───── */}
+      <section className="py-24 md:py-32 bg-background-light relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px] -z-10"></div>
+        <div className="container mx-auto px-6 relative">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="grid lg:grid-cols-2 gap-16 items-center">
+            <motion.div variants={fadeUp}>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-xs font-semibold text-primary mb-5">
+                <Heart className="w-3.5 h-3.5" />
+                마이 대시보드
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">나만의<br /><span className="text-gradient">피부 리포트</span></h2>
+              <p className="text-text-muted text-base leading-relaxed mb-8 max-w-md">
+                AI 피부 진단으로 시간에 따른 변화를 추적합니다. 피부 상태에 꼭 맞는 제품을 추천받으세요.
+              </p>
+              {/* 스탯 카드 업그레이드 — 아이콘 + 트렌드 */}
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { label: '수분', value: '78%', trend: '+5%', color: 'from-violet-500 to-purple-400' },
+                  { label: '탄력', value: '85%', trend: '+12%', color: 'from-fuchsia-500 to-pink-400' },
+                  { label: '색소', value: '62%', trend: '-8%', color: 'from-primary to-primary-light' },
+                ].map((stat) => (
+                  <div key={stat.label} className="glass-premium p-5 rounded-2xl text-center card-hover">
+                    <p className="text-3xl font-bold text-gradient">{stat.value}</p>
+                    <p className="text-xs text-text-muted mt-1 font-medium">{stat.label}</p>
+                    <div className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-full">
+                      <TrendingUp className="w-2.5 h-2.5" />
+                      {stat.trend}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div variants={scaleIn}>
+              <div className="glass-premium rounded-3xl p-8 max-w-sm mx-auto">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="font-bold text-lg">피부 리포트</h3>
+                  <span className="text-xs bg-gradient-to-r from-emerald-400 to-teal-400 text-white px-3 py-1 rounded-full font-bold shadow-sm">개선 중 ↑</span>
+                </div>
+                <div className="space-y-5">
+                  {[
+                    { label: '수분 보유량', pct: 78, color: 'bg-gradient-to-r from-violet-400 to-purple-400' },
+                    { label: '유수분 밸런스', pct: 65, color: 'bg-gradient-to-r from-pink-400 to-rose-400' },
+                    { label: '모공 건강', pct: 82, color: 'bg-gradient-to-r from-fuchsia-400 to-purple-400' },
+                    { label: '주름 관리', pct: 70, color: 'bg-gradient-to-r from-primary to-primary-light' },
+                  ].map((bar) => (
+                    <div key={bar.label}>
+                      <div className="flex justify-between text-xs mb-1.5">
+                        <span className="font-medium">{bar.label}</span>
+                        <span className="font-bold text-primary">{bar.pct}%</span>
+                      </div>
+                      <div className="w-full h-3 bg-white/60 rounded-full overflow-hidden shadow-inner">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          whileInView={{ width: `${bar.pct}%` }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 1.2, delay: 0.3, ease: 'easeOut' as const }}
+                          className={`h-full ${bar.color} rounded-full shadow-sm`}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button className="w-full mt-6 btn-primary py-3 text-sm flex items-center justify-center gap-1 cursor-pointer">
+                  전체 리포트 보기 <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ───── 뷰티 클립 ───── */}
+      <section id="beauty-clip" className="py-24 md:py-32 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFF 0%, #F8F0FF 100%)' }}>
+        <div className="container mx-auto px-6">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={fadeUp} className="text-center max-w-3xl mx-auto mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-xs font-semibold text-primary mb-6">
+              <Play className="w-3.5 h-3.5" />
+              뷰티 클립
+            </div>
+            <h2 className="text-4xl md:text-6xl font-bold mb-5">진짜 후기,<br /><span className="text-gradient">진짜 결과</span></h2>
+            <p className="text-text-muted text-base md:text-lg">실제 고객의 숏폼 리뷰를 확인하세요.<br />비포/애프터를 공유하면 포인트도 적립됩니다.</p>
+          </motion.div>
+
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={fadeUp}>
+            <div className="flex gap-6 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory">
+              {[
+                { title: '글래스 스킨 페이셜 ✨', user: 'Emily K.', views: '12.4K', time: '0:45', gradient: 'from-purple-300 to-violet-200' },
+                { title: '한국식 펌 변신기 💇', user: 'Yuki T.', views: '8.7K', time: '1:20', gradient: 'from-pink-300 to-rose-200' },
+                { title: '레이저 토닝 결과 💎', user: 'Sarah L.', views: '24.1K', time: '0:55', gradient: 'from-fuchsia-300 to-purple-200' },
+                { title: '입술 필러 후기 💋', user: 'Mia C.', views: '15.3K', time: '1:10', gradient: 'from-violet-300 to-indigo-200' },
+              ].map((clip, i) => (
+                <div key={i} className="min-w-[240px] md:min-w-[280px] snap-start shrink-0">
+                  <div className={`bg-gradient-to-b ${clip.gradient} rounded-3xl h-[340px] md:h-[400px] relative overflow-hidden group cursor-pointer card-hover`}>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-full bg-white/70 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
+                        <Play className="w-7 h-7 text-primary ml-1" />
+                      </div>
+                    </div>
+                    {/* 재생 시간 */}
+                    <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-lg">
+                      {clip.time}
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/50 to-transparent">
+                      <p className="text-white font-bold text-sm">{clip.title}</p>
+                      <div className="flex items-center justify-between mt-1.5">
+                        <span className="text-white/80 text-xs font-medium">@{clip.user}</span>
+                        <span className="text-white/80 text-xs">▶ {clip.views}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ───── CTA (글래스 카드 추가) ───── */}
+      <section className="py-28 md:py-36 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #A855F7 0%, #C084FC 30%, #E879B0 70%, #F0ABFC 100%)' }}>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px]"></div>
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-white/10 rounded-full blur-[100px]"></div>
+        {/* 도트 패턴 */}
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
+        <div className="container mx-auto px-6 relative text-center text-white">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <div className="max-w-3xl mx-auto glass-hero rounded-3xl p-12 md:p-16" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}>
+              <h2 className="text-4xl md:text-7xl font-bold tracking-tight mb-6">
+                나의 K-뷰티<br />여정을 시작하세요
+              </h2>
+              <p className="text-lg md:text-xl text-white/80 mb-10 max-w-xl mx-auto">
+                150K+ 여행자가 GLOO로 완벽한 맞춤형<br />뷰티 경험을 만들고 있습니다.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button className="bg-white text-primary-dark px-10 py-4 rounded-full text-lg font-bold hover:bg-white/90 transition-colors shadow-2xl cursor-pointer">
+                  GLOO 다운로드
+                </button>
+                <button className="border-2 border-white/40 text-white px-10 py-4 rounded-full text-lg font-bold hover:bg-white/10 transition-colors cursor-pointer">
+                  더 알아보기
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ───── Footer ───── */}
+      <footer className="py-10 bg-background-light border-t border-purple-100">
+        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-text-muted">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-primary-light flex items-center justify-center">
+              <Sparkles className="text-white w-3.5 h-3.5" />
+            </div>
+            <span className="text-xl font-bold tracking-tighter text-text">GL<span className="text-gradient">OO</span></span>
+          </div>
+          <p>© 2026 캐칭(Catching). All rights reserved.</p>
+          <div className="flex gap-4">
+            <a href="#" className="hover:text-primary transition-colors">개인정보처리방침</a>
+            <a href="#" className="hover:text-primary transition-colors">이용약관</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+export default App;
