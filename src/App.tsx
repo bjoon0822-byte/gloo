@@ -89,7 +89,7 @@ function App() {
       <div className="scroll-progress" style={{ width: `${scrollProgress}%` }}></div>
 
       {/* ───── Navbar ───── */}
-      <nav className={`fixed top-4 left-4 right-4 z-50 rounded-2xl px-6 md:px-8 py-3 flex items-center justify-between max-w-7xl mx-auto transition-all duration-300 ${navScrolled ? 'glass-premium shadow-xl py-2.5' : 'glass-hero py-3'}`}>
+      <nav className={`fixed top-4 left-4 right-4 z-50 rounded-2xl px-4 sm:px-6 md:px-8 flex items-center justify-between max-w-7xl mx-auto transition-all duration-300 ${navScrolled ? 'glass-premium shadow-xl py-2.5' : 'glass-hero py-2.5 sm:py-3'}`}>
         <div className="flex items-center gap-3">
           <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="cursor-pointer hover:opacity-80 transition-opacity">
             <img src="/logo.png" alt="GLOO" className="h-8" />
@@ -101,7 +101,7 @@ function App() {
           <a href="#shop" className="hover:text-accent transition-colors">탐색</a>
           <a href="#beauty-clip" className="hover:text-accent transition-colors">뷰티 클립</a>
         </div>
-        <button className="btn-primary px-6 py-2.5 text-sm cursor-pointer border border-white/20">앱 다운로드</button>
+        <button className="btn-primary px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm cursor-pointer border border-white/20">앱 다운로드</button>
       </nav>
 
       {/* ═══════════════════════════════════════
@@ -156,24 +156,24 @@ function App() {
                 No.1 K-뷰티 컨시어지 플랫폼
               </motion.div>
 
-              <h1 className="text-5xl md:text-7xl font-extrabold leading-[1.1] tracking-tight mb-6 text-text">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight mb-4 lg:mb-6 text-text">
                 당신의 모든<br />
                 <span className="text-gradient">K-뷰티</span>
                 <span>,</span><br />
                 하나의 앱으로
               </h1>
 
-              <p className="text-base md:text-lg mb-10 max-w-md leading-relaxed text-text-muted font-medium">
+              <p className="text-sm sm:text-base md:text-lg mb-8 lg:mb-10 max-w-md leading-relaxed text-text-muted font-medium">
                 예산과 취향만 알려주세요.<br />
                 AI가 최적의 피부과와 살롱을 찾아 즉시 예약해 드립니다.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <button className="btn-primary px-8 py-4 text-base flex items-center justify-center gap-2 group cursor-pointer w-full sm:w-auto">
+                <button className="btn-primary px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base flex items-center justify-center gap-2 group cursor-pointer w-full sm:w-auto">
                   AI 예약 시작하기
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
-                <button className="btn-glass px-8 py-4 text-base text-accent font-semibold hover:bg-accent/5 transition-all cursor-pointer w-full sm:w-auto flex items-center justify-center border border-accent/30 rounded-full">
+                <button className="btn-glass px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base text-accent font-semibold hover:bg-accent/5 transition-all cursor-pointer w-full sm:w-auto flex items-center justify-center border border-accent/30 rounded-full">
                   인기 뷰티샵 보기
                 </button>
               </div>
@@ -183,7 +183,7 @@ function App() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1, duration: 0.6 }}
-                className="mt-12 flex items-center gap-4"
+                className="mt-8 lg:mt-12 flex items-center gap-3 sm:gap-4"
               >
                 <div className="flex -space-x-2">
                   {[11, 12, 13, 14].map((i) => (
@@ -288,33 +288,33 @@ function App() {
       </section>
 
       {/* ───── 신뢰 지표 밴드 ───── */}
-      <section className="py-6 bg-gradient-to-r from-primary/5 via-secondary/5 to-primary-light/5">
+      <section className="py-4 md:py-6 bg-gradient-to-r from-primary/5 via-secondary/5 to-primary-light/5">
         <div className="container mx-auto px-6">
-          <div className="flex flex-wrap justify-center gap-8 md:gap-16 items-center text-text-muted text-sm">
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-6 md:gap-16 items-center text-text-muted text-[10px] sm:text-xs md:text-sm">
             {[
-              { icon: <Shield className="w-4 h-4 text-accent" />, text: <span>검증된 <span ref={shopCount.ref} className="font-bold text-accent inline-block min-w-[3.5rem] text-right" style={{ fontVariantNumeric: 'tabular-nums' }}>{shopCount.count.toLocaleString()}</span>+ 뷰티샵</span> },
-              { icon: <Globe className="w-4 h-4 text-accent" />, text: '3개 국어 실시간 번역' },
-              { icon: <Clock className="w-4 h-4 text-accent" />, text: '평균 예약 소요 2분' },
-              { icon: <Star className="w-4 h-4 text-accent" />, text: <span>매칭 성공률 <span ref={matchRate.ref} className="font-bold text-accent inline-block min-w-[2rem] text-right" style={{ fontVariantNumeric: 'tabular-nums' }}>{matchRate.count}</span>%</span> },
+              { icon: <Shield className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-accent" />, text: <span>검증된 <span ref={shopCount.ref} className="font-bold text-accent inline-block min-w-[3rem] md:min-w-[3.5rem] text-right" style={{ fontVariantNumeric: 'tabular-nums' }}>{shopCount.count.toLocaleString()}</span>+ 뷰티샵</span> },
+              { icon: <Globe className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-accent" />, text: '3개 국어 실시간 번역' },
+              { icon: <Clock className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-accent" />, text: '평균 예약 소요 2분' },
+              { icon: <Star className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-accent" />, text: <span>매칭 성공률 <span ref={matchRate.ref} className="font-bold text-accent inline-block min-w-[1.5rem] md:min-w-[2rem] text-right" style={{ fontVariantNumeric: 'tabular-nums' }}>{matchRate.count}</span>%</span> },
             ].map((item, i) => (
-              <div key={i} className="flex items-center gap-2 font-medium">{item.icon}{item.text}</div>
+              <div key={i} className="flex items-center gap-1.5 sm:gap-2 font-medium">{item.icon}{item.text}</div>
             ))}
           </div>
         </div>
       </section>
 
       {/* ───── 기능 소개 (그라데이션 보더 + 호버 리프트) ───── */}
-      <section id="features" className="py-24 md:py-32 relative overflow-hidden">
+      <section id="features" className="py-16 md:py-24 lg:py-32 relative overflow-hidden">
         <div className="absolute top-20 -left-40 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px]"></div>
         <div className="absolute bottom-20 -right-40 w-[300px] h-[300px] bg-secondary/10 rounded-full blur-[100px]"></div>
         <div className="container mx-auto px-6 relative">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={fadeUp} className="text-center max-w-3xl mx-auto mb-20">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={fadeUp} className="text-center max-w-3xl mx-auto mb-12 md:mb-20">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-xs font-semibold text-primary mb-6">
               <Sparkles className="w-3.5 h-3.5" />
               핵심 기능
             </div>
-            <h2 className="text-4xl md:text-6xl font-bold mb-6">뷰티 여정을<br /><span className="text-gradient">하나로 통합</span></h2>
-            <p className="text-text-muted text-base md:text-lg max-w-xl mx-auto">GLOO는 언어 장벽과 복잡한 예약 과정을 없앱니다.<br />필요한 모든 것이 앱 안에 있습니다.</p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6">뷰티 여정을<br /><span className="text-gradient">하나로 통합</span></h2>
+            <p className="text-text-muted text-sm sm:text-base md:text-lg max-w-xl mx-auto">GLOO는 언어 장벽과 복잡한 예약 과정을 없앱니다.<br className="hidden sm:block" />필요한 모든 것이 앱 안에 있습니다.</p>
           </motion.div>
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="grid md:grid-cols-3 gap-8">
@@ -341,21 +341,21 @@ function App() {
       </section>
 
       {/* ───── 온보딩 ───── */}
-      <section className="py-24 md:py-32 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFF 0%, #FFE9F5 40%, #F0E8FF 70%, #F3EEFF 100%)' }}>
+      <section className="py-16 md:py-24 lg:py-32 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFF 0%, #FFE9F5 40%, #F0E8FF 70%, #F3EEFF 100%)' }}>
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] -z-10"></div>
         {/* 패럴랙스 장식 */}
         <div className="parallax-dot w-4 h-4 bg-accent top-20 left-[15%]" />
         <div className="parallax-dot w-6 h-6 bg-primary top-40 right-[20%]" />
         <div className="parallax-dot w-3 h-3 bg-primary-light bottom-20 left-[30%]" />
         <div className="container mx-auto px-6">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="grid lg:grid-cols-2 gap-16 items-center">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <motion.div variants={slideInLeft}>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-xs font-semibold text-primary mb-5">
                 <User className="w-3.5 h-3.5" />
                 온보딩
               </div>
-              <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">첫 탭부터<br /><span className="text-gradient">맞춤형으로</span></h2>
-              <p className="text-text-muted text-base leading-relaxed mb-8 max-w-md">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 leading-tight">첫 탭부터<br /><span className="text-gradient">맞춤형으로</span></h2>
+              <p className="text-text-muted text-sm sm:text-base leading-relaxed mb-6 sm:mb-8 max-w-md">
                 국적, 피부 타입, 관심 뷰티 분야를 알려주세요. GLOO가 모든 추천을 당신에게 맞춰 드립니다.
               </p>
               <div className="space-y-5">
@@ -400,12 +400,12 @@ function App() {
       </section>
 
       {/* ───── AI 채팅 상세 (태그 업그레이드) ───── */}
-      <section id="chat" className="py-24 md:py-32 bg-background-light relative overflow-hidden">
+      <section id="chat" className="py-16 md:py-24 lg:py-32 bg-background-light relative overflow-hidden">
         <div className="absolute -top-20 -right-20 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px]"></div>
         <div className="container mx-auto px-6 relative">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="grid lg:grid-cols-2 gap-16 items-center">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <motion.div variants={scaleIn} className="order-2 lg:order-1">
-              <div className="glass-premium rounded-3xl p-6 max-w-md mx-auto">
+              <div className="glass-premium rounded-3xl p-4 sm:p-6 max-w-md mx-auto">
                 <div className="bg-gradient-to-r from-accent to-primary-light rounded-2xl px-5 py-3 flex items-center gap-3 mb-4">
                   <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-white">
                     <Sparkles className="w-4 h-4" />
@@ -417,34 +417,34 @@ function App() {
                 </div>
                 <div className="space-y-3 mb-4">
                   <div className="flex justify-end">
-                    <div className="bg-gradient-to-br from-primary to-primary-light text-white text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm max-w-[75%] shadow-sm">
+                    <div className="bg-gradient-to-br from-primary to-primary-light text-white text-xs sm:text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm max-w-[85%] shadow-sm">
                       강남에서 30만원 정도 예산으로 피부 시술 받고 싶어요 💆‍♀️
                     </div>
                   </div>
                   <div className="flex justify-start">
-                    <div className="bg-white/80 text-text text-sm px-4 py-2.5 rounded-2xl rounded-tl-sm max-w-[75%] shadow-sm">
+                    <div className="bg-white/80 text-text text-xs sm:text-sm px-4 py-2.5 rounded-2xl rounded-tl-sm max-w-[85%] shadow-sm">
                       <p className="mb-2 font-medium">추천 클리닉 3곳을 찾았습니다! ✨</p>
                       <div className="space-y-1.5">
                         {['✨ 루미스킨 — ₩280,000', '🌿 하나피부과 — ₩250,000', '💎 서울글로우 — ₩320,000'].map((c, i) => (
-                          <div key={i} className="bg-white rounded-xl px-3 py-2 text-xs font-medium shadow-sm border border-purple-50">{c}</div>
+                          <div key={i} className="bg-white rounded-xl px-2.5 py-2 text-[10px] sm:text-xs font-medium shadow-sm border border-purple-50">{c}</div>
                         ))}
                       </div>
-                      <p className="mt-2">예약해 드릴까요? 🗓️</p>
+                      <p className="mt-2 text-xs sm:text-sm">예약해 드릴까요? 🗓️</p>
                     </div>
                   </div>
                   <div className="flex justify-end">
-                    <div className="bg-gradient-to-br from-primary to-primary-light text-white text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm shadow-sm">
+                    <div className="bg-gradient-to-br from-primary to-primary-light text-white text-xs sm:text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm shadow-sm">
                       루미스킨 3월 10일로 예약해 주세요! 🙏
                     </div>
                   </div>
                   <div className="flex justify-start">
-                    <div className="bg-white/80 text-text text-sm px-4 py-2.5 rounded-2xl rounded-tl-sm max-w-[75%] shadow-sm">
-                      ✅ 루미스킨 클리닉, 3월 10일 오후 2시 예약 완료!
+                    <div className="bg-white/80 text-text text-xs sm:text-sm px-4 py-2.5 rounded-2xl rounded-tl-sm max-w-[85%] shadow-sm">
+                      ✅ 예약 완료!
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 bg-white/60 rounded-full px-4 py-2 border border-white/50">
-                  <input type="text" placeholder="메시지를 입력하세요..." className="flex-1 bg-transparent text-sm outline-none placeholder:text-text-muted" readOnly />
+                  <input type="text" placeholder="메시지..." className="flex-1 bg-transparent text-xs sm:text-sm outline-none placeholder:text-text-muted" readOnly />
                   <button className="w-8 h-8 rounded-full btn-primary flex items-center justify-center text-white shrink-0 cursor-pointer shadow-md">
                     <Send className="w-3.5 h-3.5" />
                   </button>
@@ -457,22 +457,22 @@ function App() {
                 <MessageCircle className="w-3.5 h-3.5" />
                 AI 채팅
               </div>
-              <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">채팅 한 번으로<br /><span className="text-gradient">모든 예약 완료</span></h2>
-              <p className="text-text-muted text-base leading-relaxed mb-8 max-w-md">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 leading-tight">채팅 한 번으로<br /><span className="text-gradient">모든 예약 완료</span></h2>
+              <p className="text-text-muted text-sm sm:text-base leading-relaxed mb-6 sm:mb-8 max-w-md">
                 수백 개의 리스트를 둘러볼 필요 없습니다. 원하는 시술, 지역, 예산을 AI에게 말하면 즉시 맞춤 클리닉과 살롱을 매칭합니다.
               </p>
               {/* 업그레이드된 기능 카드 */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 {[
-                  { icon: <Globe className="w-5 h-5" />, label: '다국어 지원', desc: '한/영/일/중', color: 'from-violet-500 to-indigo-400' },
-                  { icon: <Zap className="w-5 h-5" />, label: '즉시 예약', desc: '평균 2분', color: 'from-primary to-primary-light' },
-                  { icon: <Search className="w-5 h-5" />, label: '가격 비교', desc: '최저가 보장', color: 'from-fuchsia-500 to-pink-400' },
-                  { icon: <Shield className="w-5 h-5" />, label: '인증된 리뷰', desc: '실명 인증', color: 'from-purple-500 to-violet-400' },
+                  { icon: <Globe className="w-4 sm:w-5 h-4 sm:h-5" />, label: '다국어 지원', desc: '한/영/일/중', color: 'from-violet-500 to-indigo-400' },
+                  { icon: <Zap className="w-4 sm:w-5 h-4 sm:h-5" />, label: '즉시 예약', desc: '평균 2분', color: 'from-primary to-primary-light' },
+                  { icon: <Search className="w-4 sm:w-5 h-4 sm:h-5" />, label: '가격 비교', desc: '최저가 보장', color: 'from-fuchsia-500 to-pink-400' },
+                  { icon: <Shield className="w-4 sm:w-5 h-4 sm:h-5" />, label: '인증된 리뷰', desc: '실명 인증', color: 'from-purple-500 to-violet-400' },
                 ].map((tag) => (
-                  <div key={tag.label} className="glass-premium px-4 py-4 rounded-2xl card-hover cursor-pointer">
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${tag.color} flex items-center justify-center text-white mb-3 shadow-md`}>{tag.icon}</div>
-                    <p className="font-bold text-sm">{tag.label}</p>
-                    <p className="text-xs text-text-muted">{tag.desc}</p>
+                  <div key={tag.label} className="glass-premium px-3 py-3 sm:px-4 sm:py-4 rounded-2xl card-hover cursor-pointer">
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br ${tag.color} flex items-center justify-center text-white mb-2 sm:mb-3 shadow-md`}>{tag.icon}</div>
+                    <p className="font-bold text-xs sm:text-sm">{tag.label}</p>
+                    <p className="text-[10px] sm:text-xs text-text-muted">{tag.desc}</p>
                   </div>
                 ))}
               </div>
@@ -482,19 +482,19 @@ function App() {
       </section>
 
       {/* ───── SHOP 탐색 (AI 이미지 적용) ───── */}
-      <section id="shop" className="py-24 md:py-32 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFF 0%, #F0E8FF 100%)' }}>
+      <section id="shop" className="py-16 md:py-24 lg:py-32 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFF 0%, #F0E8FF 100%)' }}>
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-secondary/10 rounded-full blur-[120px] -z-10"></div>
         {/* 패럴랙스 장식 */}
-        <div className="parallax-dot w-5 h-5 bg-accent top-16 right-[10%]" />
-        <div className="parallax-dot w-3 h-3 bg-primary bottom-32 left-[12%]" />
+        <div className="parallax-dot w-4 sm:w-5 h-4 sm:h-5 bg-accent top-16 right-[10%]" />
+        <div className="parallax-dot w-2 sm:w-3 h-2 sm:h-3 bg-primary bottom-32 left-[12%]" />
         <div className="container mx-auto px-6 relative">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={fadeUp} className="text-center max-w-3xl mx-auto mb-16">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={fadeUp} className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-xs font-semibold text-primary mb-6">
               <Search className="w-3.5 h-3.5" />
               샵 & 탐색
             </div>
-            <h2 className="text-4xl md:text-6xl font-bold mb-5">엄선된<br /><span className="text-gradient">뷰티 패키지</span></h2>
-            <p className="text-text-muted text-base md:text-lg">지역, 시술 종류, 가격대별로 검색하세요.<br />GLOO의 모든 살롱과 클리닉은 검증 완료된 곳입니다.</p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-5">엄선된<br /><span className="text-gradient">뷰티 패키지</span></h2>
+            <p className="text-text-muted text-sm sm:text-base md:text-lg">지역, 시술 종류, 가격대별로 검색하세요.<br className="hidden sm:block" />GLOO의 모든 살롱과 클리닉은 검증 완료된 곳입니다.</p>
           </motion.div>
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -531,30 +531,30 @@ function App() {
       </section>
 
       {/* ───── 스킨 리포트 (업그레이드) ───── */}
-      <section className="py-24 md:py-32 bg-background-light relative overflow-hidden">
+      <section className="py-16 md:py-24 lg:py-32 bg-background-light relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px] -z-10"></div>
         <div className="container mx-auto px-6 relative">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="grid lg:grid-cols-2 gap-16 items-center">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <motion.div variants={fadeUp}>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-xs font-semibold text-primary mb-5">
                 <Heart className="w-3.5 h-3.5" />
                 마이 대시보드
               </div>
-              <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">나만의<br /><span className="text-gradient">피부 리포트</span></h2>
-              <p className="text-text-muted text-base leading-relaxed mb-8 max-w-md">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 leading-tight">나만의<br /><span className="text-gradient">피부 리포트</span></h2>
+              <p className="text-text-muted text-sm sm:text-base leading-relaxed mb-6 sm:mb-8 max-w-md">
                 AI 피부 진단으로 시간에 따른 변화를 추적합니다. 피부 상태에 꼭 맞는 제품을 추천받으세요.
               </p>
               {/* 스탯 카드 업그레이드 — 아이콘 + 트렌드 */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-3 sm:gap-4">
                 {[
                   { label: '수분', value: '78%', trend: '+5%', color: 'from-violet-500 to-purple-400' },
                   { label: '탄력', value: '85%', trend: '+12%', color: 'from-fuchsia-500 to-pink-400' },
                   { label: '색소', value: '62%', trend: '-8%', color: 'from-primary to-primary-light' },
                 ].map((stat) => (
-                  <div key={stat.label} className="glass-premium p-5 rounded-2xl text-center card-hover">
-                    <p className="text-3xl font-bold text-gradient">{stat.value}</p>
-                    <p className="text-xs text-text-muted mt-1 font-medium">{stat.label}</p>
-                    <div className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-full">
+                  <div key={stat.label} className="glass-premium p-3 sm:p-5 rounded-2xl text-center card-hover">
+                    <p className="text-2xl sm:text-3xl font-bold text-gradient">{stat.value}</p>
+                    <p className="text-[10px] sm:text-xs text-text-muted mt-1 font-medium">{stat.label}</p>
+                    <div className="mt-2 inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-emerald-500 bg-emerald-50 px-1.5 sm:px-2 py-0.5 rounded-full">
                       <TrendingUp className="w-2.5 h-2.5" />
                       {stat.trend}
                     </div>
@@ -648,30 +648,21 @@ function App() {
         </div>
       </section>
 
-      {/* ───── CTA (글래스 카드 + 액센트 핑크) ───── */}
-      <section className="py-28 md:py-36 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #FF2D78 0%, #C084FC 50%, #A855F7 100%)' }}>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px]"></div>
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-white/10 rounded-full blur-[100px]"></div>
-        {/* 웨이브 SVG 배경 */}
-        <div className="absolute bottom-0 left-0 right-0" style={{ height: '60px', background: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 1440 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 60L48 52C96 44 192 28 288 22C384 16 480 20 576 28C672 36 768 48 864 48C960 48 1056 36 1152 28C1248 20 1344 16 1392 14L1440 12V60H0Z\' fill=\'%231a1020\'/%3E%3C/svg%3E") no-repeat bottom center', backgroundSize: 'cover' }}></div>
-        <div className="container mx-auto px-6 relative text-center text-white">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-            <div className="max-w-3xl mx-auto glass-hero rounded-3xl p-12 md:p-16" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.25)' }}>
-              <img src="/logo.png" alt="GLOO" className="h-10 mx-auto mb-8" style={{ filter: 'brightness(0) invert(1)' }} />
-              <h2 className="text-4xl md:text-7xl font-bold tracking-tight mb-6">
-                나의 K-뷰티<br />여정을 시작하세요
-              </h2>
-              <p className="text-lg md:text-xl text-white/80 mb-10 max-w-xl mx-auto">
-                150K+ 여행자가 GLOO로 완벽한 맞춤형<br />뷰티 경험을 만들고 있습니다.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="bg-white text-accent px-10 py-4 rounded-full text-lg font-bold hover:bg-white/90 transition-all shadow-2xl cursor-pointer hover:scale-105">
-                  GLOO 다운로드
-                </button>
-                <button className="btn-glass px-10 py-4 rounded-full text-lg font-bold cursor-pointer border-2 border-white/40 hover:border-white/70">
-                  더 알아보기
-                </button>
-              </div>
+      {/* ───── 최하단 CTA ───── */}
+      <section className="py-20 md:py-32 relative overflow-hidden bg-primary-dark text-white">
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+        <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-accent/20 to-transparent"></div>
+        <div className="container mx-auto px-6 relative z-10 text-center">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={fadeUp} className="max-w-2xl mx-auto">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-8 leading-tight">뷰티의 새로운 기준,<br />지금 시작하세요</h2>
+            <p className="text-primary-light/80 text-base md:text-lg mb-8 sm:mb-12">예약부터 후기까지, 오직 당신을 위한<br className="hidden sm:block" />가장 완벽한 뷰티 경험을 제공합니다.</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button className="bg-white text-primary-dark px-6 sm:px-8 py-3.5 sm:py-4 rounded-full font-bold hover:scale-105 transition-transform shadow-[0_0_30px_rgba(255,255,255,0.3)] w-full sm:w-auto text-sm sm:text-base cursor-pointer">
+                앱 스토어 다운로드
+              </button>
+              <button className="bg-transparent border border-white/30 text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded-full font-bold hover:bg-white/10 transition-colors cursor-pointer w-full sm:w-auto text-sm sm:text-base">
+                Google Play 다운로드
+              </button>
             </div>
           </motion.div>
         </div>
@@ -680,11 +671,21 @@ function App() {
       {/* ───── Full Footer ───── */}
       <footer className="py-16 bg-[#1a1020] text-white">
         <div className="container mx-auto px-6">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
-            {/* 로고 & 소개 */}
-            <div className="md:col-span-1">
-              <img src="/logo.png" alt="GLOO" className="h-8 mb-4" style={{ filter: 'brightness(0) invert(1)' }} />
-              <p className="text-sm text-white/50 leading-relaxed">당신의 모든 K-뷰티,<br />하나의 앱으로.</p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-12 mb-12">
+            {/* 로고 및 설명 */}
+            <div className="col-span-1 md:col-span-2 lg:col-span-2 mb-8 md:mb-0">
+              <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                <img src="/logo.png" alt="GLOO 로고" className="h-6 sm:h-8 opacity-80" style={{ filter: 'grayscale(100%) brightness(200%)' }} />
+              </div>
+              <p className="text-sm sm:text-base text-gray-400 max-w-sm mb-6 sm:mb-8 leading-relaxed">
+                Global K-Beauty Concierge.<br />
+                언어 장벽 없는 완벽한 뷰티 경험을 전 세계 고객에게 제공합니다.
+              </p>
+              <div className="flex gap-4">
+                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors cursor-pointer"><span className="text-xl">☻</span></div>
+                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors cursor-pointer"><span className="text-xl">📸</span></div>
+                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors cursor-pointer"><span className="text-xl">🐦</span></div>
+              </div>
             </div>
             {/* 서비스 */}
             <div>
@@ -706,7 +707,7 @@ function App() {
                 <li><a href="#" className="hover:text-accent transition-colors">블로그</a></li>
               </ul>
             </div>
-            {/* 법률 & SNS */}
+            {/* 법률 */}
             <div>
               <h4 className="font-bold text-sm mb-4 text-white/80">법률</h4>
               <ul className="space-y-2.5 text-sm text-white/50">
@@ -714,16 +715,16 @@ function App() {
                 <li><a href="#" className="hover:text-accent transition-colors">이용약관</a></li>
                 <li><a href="#" className="hover:text-accent transition-colors">쿠키 정책</a></li>
               </ul>
-              <div className="flex gap-3 mt-6">
-                <a href="#" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent/30 transition-colors"><Globe className="w-4 h-4 text-white/60" /></a>
-                <a href="#" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent/30 transition-colors"><Heart className="w-4 h-4 text-white/60" /></a>
-                <a href="#" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent/30 transition-colors"><Send className="w-4 h-4 text-white/60" /></a>
-              </div>
             </div>
           </div>
-          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/40">
-            <p>© 2026 캐칭(Catching). All rights reserved.</p>
-            <p>Made with ❤️ in Seoul</p>
+          {/* 하단 카피라이트 */}
+          <div className="border-t border-white/10 mt-12 sm:mt-16 pt-6 sm:pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] sm:text-xs text-gray-500">
+            <p>© 2026 GLOO Inc. All rights reserved.</p>
+            <div className="flex gap-4 sm:gap-6">
+              <a href="#" className="hover:text-white transition-colors">이용약관</a>
+              <a href="#" className="hover:text-white transition-colors">개인정보처리방침</a>
+              <a href="#" className="hover:text-white transition-colors">쿠키 정책</a>
+            </div>
           </div>
         </div>
       </footer>
