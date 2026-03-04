@@ -124,6 +124,10 @@ function App() {
         <div className="absolute bottom-0 right-0 w-[260px] h-[55px] z-30"
           style={{ background: 'linear-gradient(135deg, rgba(210,190,245,1), rgba(230,200,235,1))' }}
         ></div>
+        {/* 히어로 하단 → 신뢰 밴드 자연스러운 전환 */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 z-20 pointer-events-none"
+          style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(243,238,255,0.4) 40%, rgba(243,238,255,0.85) 70%, rgba(243,238,255,1) 100%)' }}
+        ></div>
 
         <div className="container mx-auto px-6 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -281,10 +285,10 @@ function App() {
         <div className="container mx-auto px-6">
           <div className="flex flex-wrap justify-center gap-8 md:gap-16 items-center text-text-muted text-sm">
             {[
-              { icon: <Shield className="w-4 h-4 text-accent" />, text: <span>검증된 <span ref={shopCount.ref} className="font-bold text-accent">{shopCount.count.toLocaleString()}</span>+ 뷰티샵</span> },
+              { icon: <Shield className="w-4 h-4 text-accent" />, text: <span>검증된 <span ref={shopCount.ref} className="font-bold text-accent inline-block min-w-[3.5rem] text-right" style={{ fontVariantNumeric: 'tabular-nums' }}>{shopCount.count.toLocaleString()}</span>+ 뷰티샵</span> },
               { icon: <Globe className="w-4 h-4 text-accent" />, text: '3개 국어 실시간 번역' },
               { icon: <Clock className="w-4 h-4 text-accent" />, text: '평균 예약 소요 2분' },
-              { icon: <Star className="w-4 h-4 text-accent" />, text: <span>매칭 성공률 <span ref={matchRate.ref} className="font-bold text-accent">{matchRate.count}</span>%</span> },
+              { icon: <Star className="w-4 h-4 text-accent" />, text: <span>매칭 성공률 <span ref={matchRate.ref} className="font-bold text-accent inline-block min-w-[2rem] text-right" style={{ fontVariantNumeric: 'tabular-nums' }}>{matchRate.count}</span>%</span> },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-2 font-medium">{item.icon}{item.text}</div>
             ))}
