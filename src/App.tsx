@@ -113,20 +113,20 @@ function App() {
             frameBorder="0"
             className="w-full h-full"
             title="GLOO 3D Visual"
-            style={{ pointerEvents: 'auto' }}
+            style={{ pointerEvents: 'auto', border: 'none', outline: 'none', display: 'block' }}
           />
         </div>
 
         {/* 텍스트/UI 가독성을 위한 배경 그라데이션 커튼 — 더 투명하게 */}
         <div className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-r from-background/90 via-background/60 to-transparent"></div>
 
-        {/* Spline 워터마크 완벽 가림 */}
-        <div className="absolute bottom-0 right-0 w-[260px] h-[55px] z-30"
-          style={{ background: 'linear-gradient(135deg, rgba(210,190,245,1), rgba(230,200,235,1))' }}
+        {/* Spline 하단 완벽 가림 (워터마크 + 경계선) */}
+        <div className="absolute bottom-0 left-0 right-0 h-[70px] z-30"
+          style={{ background: 'linear-gradient(180deg, rgba(210,190,245,0) 0%, rgba(220,200,245,0.8) 30%, rgba(230,210,250,1) 60%, rgba(243,238,255,1) 100%)' }}
         ></div>
         {/* 히어로 하단 → 신뢰 밴드 자연스러운 전환 */}
-        <div className="absolute bottom-0 left-0 right-0 h-24 z-20 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(243,238,255,0.4) 40%, rgba(243,238,255,0.85) 70%, rgba(243,238,255,1) 100%)' }}
+        <div className="absolute bottom-0 left-0 right-0 h-40 z-20 pointer-events-none"
+          style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(243,238,255,0.3) 20%, rgba(243,238,255,0.7) 50%, rgba(243,238,255,0.95) 75%, rgba(243,238,255,1) 100%)' }}
         ></div>
 
         <div className="container mx-auto px-6 relative z-10">
