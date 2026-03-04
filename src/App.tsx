@@ -91,7 +91,7 @@ function App() {
       {/* ───── Navbar ───── */}
       <nav className={`fixed top-4 left-4 right-4 z-50 rounded-2xl px-6 md:px-8 py-3 flex items-center justify-between max-w-7xl mx-auto transition-all duration-300 ${navScrolled ? 'glass-premium shadow-xl py-2.5' : 'glass-hero py-3'}`}>
         <div className="flex items-center gap-3">
-          <img src="/logo.svg" alt="GLOO" className="h-7" />
+          <img src="/logo.png" alt="GLOO" className="h-8" />
         </div>
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-text-muted">
           <a href="#features" className="hover:text-accent transition-colors">기능</a>
@@ -639,7 +639,7 @@ function App() {
         <div className="container mx-auto px-6 relative text-center text-white">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
             <div className="max-w-3xl mx-auto glass-hero rounded-3xl p-12 md:p-16" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.25)' }}>
-              <img src="/logo.svg" alt="GLOO" className="h-10 mx-auto mb-8" style={{ filter: 'brightness(0) invert(1)' }} />
+              <img src="/logo.png" alt="GLOO" className="h-10 mx-auto mb-8" style={{ filter: 'brightness(0) invert(1)' }} />
               <h2 className="text-4xl md:text-7xl font-bold tracking-tight mb-6">
                 나의 K-뷰티<br />여정을 시작하세요
               </h2>
@@ -665,7 +665,7 @@ function App() {
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             {/* 로고 & 소개 */}
             <div className="md:col-span-1">
-              <img src="/logo.svg" alt="GLOO" className="h-8 mb-4" style={{ filter: 'brightness(0) invert(1)' }} />
+              <img src="/logo.png" alt="GLOO" className="h-8 mb-4" style={{ filter: 'brightness(0) invert(1)' }} />
               <p className="text-sm text-white/50 leading-relaxed">당신의 모든 K-뷰티,<br />하나의 앱으로.</p>
             </div>
             {/* 서비스 */}
