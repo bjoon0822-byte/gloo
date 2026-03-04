@@ -1,7 +1,14 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Sparkles, MessageCircle, Globe, MapPin, ArrowRight, Star, Heart, Calendar, ChevronRight, Search, User, Play, Send, Palette, Stethoscope, Scissors, Zap, Shield, Clock, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useChat } from '@ai-sdk/react';
+
+/* ── 챗봇 메시지 타입 ── */
+interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  toolInvocations?: any[];
+}
 const customEase = [0.25, 0.46, 0.45, 0.94] as [number, number, number, number];
 
 const fadeUp = {
@@ -62,9 +69,80 @@ function useCountUp(target: number, duration: number = 2000) {
 }
 
 function App() {
-  /* ── AI 챗봇 State (Vercel AI SDK) ── */
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat() as any;
+  /* ── AI 챗봇 State (수동 관리 - useChat 대신) ── */
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // input change handler
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  }, []);
+
+  // 채팅 전송 handler
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = input.trim();
+    if (!trimmed || isLoading) return;
+
+    const userMsg: ChatMessage = { id: Date.now().toString(), role: 'user', content: trimmed };
+    setMessages(prev => [...prev, userMsg]);
+    setInput('');
+    setIsLoading(true);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [...messages, userMsg].map(m => ({ role: m.role, content: m.content })) }),
+      });
+
+      if (!res.ok) throw new Error(`API 응답 오류: ${res.status}`);
+
+      // 스트리밍 텍스트 파싱
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+      const assistantId = (Date.now() + 1).toString();
+      setMessages(prev => [...prev, { id: assistantId, role: 'assistant', content: '' }]);
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          // Vercel AI SDK 스트리밍 프로토콜 파싱
+          const lines = chunk.split('\n').filter(Boolean);
+          for (const line of lines) {
+            // 텍스트 청크: "0:" prefix
+            if (line.startsWith('0:')) {
+              try {
+                const text = JSON.parse(line.slice(2));
+                fullText += text;
+                setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: fullText } : m));
+              } catch { /* non-JSON chunk, skip */ }
+            }
+          }
+        }
+      }
+
+      // 텍스트가 비어있다면 fallback
+      if (!fullText) {
+        setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: '죄송합니다. 응답을 처리하지 못했습니다. 다시 시도해주세요.' } : m));
+      }
+    } catch (err) {
+      console.error('Chat API Error:', err);
+      const errorMsg: ChatMessage = {
+        id: (Date.now() + 2).toString(),
+        role: 'assistant',
+        content: '⚠️ AI 서버에 연결할 수 없습니다. Vercel에 배포된 환경에서 다시 시도해주세요.',
+      };
+      setMessages(prev => [...prev, errorMsg]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [input, isLoading, messages]);
 
   // Auto-scroll to bottom of chat
   useEffect(() => {
