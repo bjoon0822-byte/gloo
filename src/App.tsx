@@ -91,7 +91,9 @@ function App() {
       {/* ───── Navbar ───── */}
       <nav className={`fixed top-4 left-4 right-4 z-50 rounded-2xl px-6 md:px-8 py-3 flex items-center justify-between max-w-7xl mx-auto transition-all duration-300 ${navScrolled ? 'glass-premium shadow-xl py-2.5' : 'glass-hero py-3'}`}>
         <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="GLOO" className="h-8" />
+          <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="cursor-pointer hover:opacity-80 transition-opacity">
+            <img src="/logo.png" alt="GLOO" className="h-8" />
+          </a>
         </div>
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-text-muted">
           <a href="#features" className="hover:text-accent transition-colors">기능</a>
