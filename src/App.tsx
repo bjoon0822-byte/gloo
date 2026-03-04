@@ -90,17 +90,14 @@ function App() {
 
       {/* ───── Navbar ───── */}
       <nav className={`fixed top-4 left-4 right-4 z-50 rounded-2xl px-6 md:px-8 py-3 flex items-center justify-between max-w-7xl mx-auto transition-all duration-300 ${navScrolled ? 'glass-premium shadow-xl py-2.5' : 'glass-hero py-3'}`}>
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-light flex items-center justify-center">
-            <Sparkles className="text-white w-4 h-4" />
-          </div>
-          <span className="text-xl font-bold tracking-tighter">GL<span className="text-gradient">OO</span></span>
+        <div className="flex items-center gap-3">
+          <img src="/logo.svg" alt="GLOO" className="h-7" />
         </div>
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-text-muted">
-          <a href="#features" className="hover:text-primary transition-colors">기능</a>
-          <a href="#chat" className="hover:text-primary transition-colors">AI 채팅</a>
-          <a href="#shop" className="hover:text-primary transition-colors">탐색</a>
-          <a href="#beauty-clip" className="hover:text-primary transition-colors">뷰티 클립</a>
+          <a href="#features" className="hover:text-accent transition-colors">기능</a>
+          <a href="#chat" className="hover:text-accent transition-colors">AI 채팅</a>
+          <a href="#shop" className="hover:text-accent transition-colors">탐색</a>
+          <a href="#beauty-clip" className="hover:text-accent transition-colors">뷰티 클립</a>
         </div>
         <button className="btn-primary px-6 py-2.5 text-sm cursor-pointer border border-white/20">앱 다운로드</button>
       </nav>
@@ -165,7 +162,7 @@ function App() {
                   AI 예약 시작하기
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
-                <button className="btn-glass px-8 py-4 text-base text-primary-dark hover:text-primary transition-colors cursor-pointer w-full sm:w-auto flex items-center justify-center">
+                <button className="btn-glass px-8 py-4 text-base text-accent font-semibold hover:bg-accent/5 transition-all cursor-pointer w-full sm:w-auto flex items-center justify-center border border-accent/30 rounded-full">
                   인기 뷰티샵 보기
                 </button>
               </div>
@@ -284,10 +281,10 @@ function App() {
         <div className="container mx-auto px-6">
           <div className="flex flex-wrap justify-center gap-8 md:gap-16 items-center text-text-muted text-sm">
             {[
-              { icon: <Shield className="w-4 h-4 text-primary" />, text: <span>검증된 <span ref={shopCount.ref} className="font-bold">{shopCount.count.toLocaleString()}</span>+ 뷰티샵</span> },
-              { icon: <Globe className="w-4 h-4 text-primary" />, text: '3개 국어 실시간 번역' },
-              { icon: <Clock className="w-4 h-4 text-primary" />, text: '평균 예약 소요 2분' },
-              { icon: <Star className="w-4 h-4 text-primary" />, text: <span>매칭 성공률 <span ref={matchRate.ref} className="font-bold">{matchRate.count}</span>%</span> },
+              { icon: <Shield className="w-4 h-4 text-accent" />, text: <span>검증된 <span ref={shopCount.ref} className="font-bold text-accent">{shopCount.count.toLocaleString()}</span>+ 뷰티샵</span> },
+              { icon: <Globe className="w-4 h-4 text-accent" />, text: '3개 국어 실시간 번역' },
+              { icon: <Clock className="w-4 h-4 text-accent" />, text: '평균 예약 소요 2분' },
+              { icon: <Star className="w-4 h-4 text-accent" />, text: <span>매칭 성공률 <span ref={matchRate.ref} className="font-bold text-accent">{matchRate.count}</span>%</span> },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-2 font-medium">{item.icon}{item.text}</div>
             ))}
@@ -311,19 +308,19 @@ function App() {
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="grid md:grid-cols-3 gap-8">
             {[
-              { icon: <MessageCircle className="w-7 h-7" />, grad: 'from-primary to-primary-light', title: 'AI 채팅 예약', desc: '원하는 시술, 일정, 예산을 AI에게 알려주세요. 검증된 최고의 뷰티샵을 매칭해 드립니다.', highlight: '2분 만에 예약 완료', stat: '98%', statLabel: '매칭 성공률' },
-              { icon: <Globe className="w-7 h-7" />, grad: 'from-violet-500 to-indigo-400', title: '실시간 자동 번역', desc: '영어, 일본어, 중국어로 자유롭게 대화하세요. 오역 걱정 없이 자연스러운 소통이 가능합니다.', highlight: '3개 국어 지원', stat: '99.2%', statLabel: '번역 정확도' },
-              { icon: <MapPin className="w-7 h-7" />, grad: 'from-fuchsia-500 to-pink-400', title: 'O2O 연계', desc: '지도 기반 검색과 일정 관리를 통합하여 온라인 예약부터 오프라인 뷰티 경험까지 원스톱으로.', highlight: '전국 4,000+ 매장', stat: '4,200+', statLabel: '제휴 매장' },
+              { icon: <MessageCircle className="w-7 h-7" />, grad: 'from-accent to-primary-light', borderColor: '#FF2D78', title: 'AI 채팅 예약', desc: '원하는 시술, 일정, 예산을 AI에게 알려주세요. 검증된 최고의 뷰티샵을 매칭해 드립니다.', highlight: '2분 만에 예약 완료', stat: '98%', statLabel: '매칭 성공률' },
+              { icon: <Globe className="w-7 h-7" />, grad: 'from-violet-500 to-indigo-400', borderColor: '#8B5CF6', title: '실시간 자동 번역', desc: '영어, 일본어, 중국어로 자유롭게 대화하세요. 오역 걱정 없이 자연스러운 소통이 가능합니다.', highlight: '3개 국어 지원', stat: '99.2%', statLabel: '번역 정확도' },
+              { icon: <MapPin className="w-7 h-7" />, grad: 'from-fuchsia-500 to-pink-400', borderColor: '#D946EF', title: 'O2O 연계', desc: '지도 기반 검색과 일정 관리를 통합하여 온라인 예약부터 오프라인 뷰티 경험까지 원스톱으로.', highlight: '전국 4,000+ 매장', stat: '4,200+', statLabel: '제휴 매장' },
             ].map((f, i) => (
-              <motion.div key={i} variants={scaleIn} className="glass-premium p-8 rounded-3xl card-hover cursor-pointer gradient-top-border">
+              <motion.div key={i} variants={scaleIn} className="glass-premium p-8 rounded-3xl card-hover cursor-pointer relative overflow-hidden" style={{ borderTop: `3px solid ${f.borderColor}` }}>
                 <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${f.grad} flex items-center justify-center mb-6 text-white shadow-lg`}>
                   {f.icon}
                 </div>
                 <h3 className="text-xl font-bold mb-2">{f.title}</h3>
-                <span className="inline-block text-[10px] font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full mb-3">{f.highlight}</span>
+                <span className="inline-block text-[10px] font-bold text-accent bg-accent/10 px-2.5 py-1 rounded-full mb-3">{f.highlight}</span>
                 <p className="text-text-muted leading-relaxed text-sm mb-5">{f.desc}</p>
                 <div className="pt-4 border-t border-purple-100 flex items-center gap-2">
-                  <span className="text-2xl font-bold text-gradient">{f.stat}</span>
+                  <span className="text-3xl font-bold text-accent font-heading">{f.stat}</span>
                   <span className="text-xs text-text-muted">{f.statLabel}</span>
                 </div>
               </motion.div>
@@ -633,15 +630,16 @@ function App() {
         </div>
       </section>
 
-      {/* ───── CTA (글래스 카드 추가) ───── */}
-      <section className="py-28 md:py-36 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #A855F7 0%, #C084FC 30%, #E879B0 70%, #F0ABFC 100%)' }}>
+      {/* ───── CTA (글래스 카드 + 액센트 핑크) ───── */}
+      <section className="py-28 md:py-36 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #FF2D78 0%, #C084FC 50%, #A855F7 100%)' }}>
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px]"></div>
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-white/10 rounded-full blur-[100px]"></div>
-        {/* 도트 패턴 */}
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
+        {/* 웨이브 SVG 배경 */}
+        <div className="absolute bottom-0 left-0 right-0" style={{ height: '60px', background: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 1440 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 60L48 52C96 44 192 28 288 22C384 16 480 20 576 28C672 36 768 48 864 48C960 48 1056 36 1152 28C1248 20 1344 16 1392 14L1440 12V60H0Z\' fill=\'%231a1020\'/%3E%3C/svg%3E") no-repeat bottom center', backgroundSize: 'cover' }}></div>
         <div className="container mx-auto px-6 relative text-center text-white">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-            <div className="max-w-3xl mx-auto glass-hero rounded-3xl p-12 md:p-16" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}>
+            <div className="max-w-3xl mx-auto glass-hero rounded-3xl p-12 md:p-16" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.25)' }}>
+              <img src="/logo.svg" alt="GLOO" className="h-10 mx-auto mb-8" style={{ filter: 'brightness(0) invert(1)' }} />
               <h2 className="text-4xl md:text-7xl font-bold tracking-tight mb-6">
                 나의 K-뷰티<br />여정을 시작하세요
               </h2>
@@ -649,10 +647,10 @@ function App() {
                 150K+ 여행자가 GLOO로 완벽한 맞춤형<br />뷰티 경험을 만들고 있습니다.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="btn-primary px-10 py-4 rounded-full text-lg font-bold shadow-2xl cursor-pointer">
+                <button className="bg-white text-accent px-10 py-4 rounded-full text-lg font-bold hover:bg-white/90 transition-all shadow-2xl cursor-pointer hover:scale-105">
                   GLOO 다운로드
                 </button>
-                <button className="btn-glass px-10 py-4 rounded-full text-lg font-bold cursor-pointer">
+                <button className="btn-glass px-10 py-4 rounded-full text-lg font-bold cursor-pointer border-2 border-white/40 hover:border-white/70">
                   더 알아보기
                 </button>
               </div>
@@ -661,19 +659,53 @@ function App() {
         </div>
       </section>
 
-      {/* ───── Footer ───── */}
-      <footer className="py-10 bg-background-light border-t border-purple-100">
-        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-text-muted">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-primary-light flex items-center justify-center">
-              <Sparkles className="text-white w-3.5 h-3.5" />
+      {/* ───── Full Footer ───── */}
+      <footer className="py-16 bg-[#1a1020] text-white">
+        <div className="container mx-auto px-6">
+          <div className="grid md:grid-cols-4 gap-12 mb-12">
+            {/* 로고 & 소개 */}
+            <div className="md:col-span-1">
+              <img src="/logo.svg" alt="GLOO" className="h-8 mb-4" style={{ filter: 'brightness(0) invert(1)' }} />
+              <p className="text-sm text-white/50 leading-relaxed">당신의 모든 K-뷰티,<br />하나의 앱으로.</p>
             </div>
-            <span className="text-xl font-bold tracking-tighter text-text">GL<span className="text-gradient">OO</span></span>
+            {/* 서비스 */}
+            <div>
+              <h4 className="font-bold text-sm mb-4 text-white/80">서비스</h4>
+              <ul className="space-y-2.5 text-sm text-white/50">
+                <li><a href="#features" className="hover:text-accent transition-colors">AI 채팅 예약</a></li>
+                <li><a href="#shop" className="hover:text-accent transition-colors">뷰티샵 탐색</a></li>
+                <li><a href="#" className="hover:text-accent transition-colors">피부 리포트</a></li>
+                <li><a href="#beauty-clip" className="hover:text-accent transition-colors">뷰티 클립</a></li>
+              </ul>
+            </div>
+            {/* 회사 */}
+            <div>
+              <h4 className="font-bold text-sm mb-4 text-white/80">회사</h4>
+              <ul className="space-y-2.5 text-sm text-white/50">
+                <li><a href="#" className="hover:text-accent transition-colors">팀 소개</a></li>
+                <li><a href="#" className="hover:text-accent transition-colors">채용</a></li>
+                <li><a href="#" className="hover:text-accent transition-colors">파트너십</a></li>
+                <li><a href="#" className="hover:text-accent transition-colors">블로그</a></li>
+              </ul>
+            </div>
+            {/* 법률 & SNS */}
+            <div>
+              <h4 className="font-bold text-sm mb-4 text-white/80">법률</h4>
+              <ul className="space-y-2.5 text-sm text-white/50">
+                <li><a href="#" className="hover:text-accent transition-colors">개인정보처리방침</a></li>
+                <li><a href="#" className="hover:text-accent transition-colors">이용약관</a></li>
+                <li><a href="#" className="hover:text-accent transition-colors">쿠키 정책</a></li>
+              </ul>
+              <div className="flex gap-3 mt-6">
+                <a href="#" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent/30 transition-colors"><Globe className="w-4 h-4 text-white/60" /></a>
+                <a href="#" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent/30 transition-colors"><Heart className="w-4 h-4 text-white/60" /></a>
+                <a href="#" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent/30 transition-colors"><Send className="w-4 h-4 text-white/60" /></a>
+              </div>
+            </div>
           </div>
-          <p>© 2026 캐칭(Catching). All rights reserved.</p>
-          <div className="flex gap-4">
-            <a href="#" className="hover:text-primary transition-colors">개인정보처리방침</a>
-            <a href="#" className="hover:text-primary transition-colors">이용약관</a>
+          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/40">
+            <p>© 2026 캐칭(Catching). All rights reserved.</p>
+            <p>Made with ❤️ in Seoul</p>
           </div>
         </div>
       </footer>

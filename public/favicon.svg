@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="24" fill="#FF2D78"/>
+  <!-- G -->
+  <path d="M15 20 H45 V20" stroke="white" stroke-width="6" stroke-linecap="square"/>
+  <path d="M15 20 V62" stroke="white" stroke-width="6" stroke-linecap="square"/>
+  <path d="M15 62 H45" stroke="white" stroke-width="6" stroke-linecap="square"/>
+  <path d="M45 62 V42" stroke="white" stroke-width="6" stroke-linecap="square"/>
+  <path d="M45 42 H32" stroke="white" stroke-width="6" stroke-linecap="square"/>
+  <!-- L -->
+  <path d="M55 20 V62" stroke="white" stroke-width="6" stroke-linecap="square"/>
+  <path d="M55 62 H80" stroke="white" stroke-width="6" stroke-linecap="square"/>
+  <!-- diamond -->
+  <path d="M80 41 L88 28 L96 41 L88 54 Z" fill="white"/>
+  <!-- O left -->
+  <circle cx="35" cy="92" r="22" stroke="white" stroke-width="6" fill="none"/>
+  <!-- O right -->
+  <circle cx="85" cy="92" r="22" stroke="white" stroke-width="6" fill="none"/>
+</svg>
