@@ -1,9 +1,22 @@
+import { useState, useEffect, useRef } from 'react';
 import { Sparkles, MessageCircle, Globe, MapPin, ArrowRight, Star, Heart, Calendar, ChevronRight, Search, User, Play, Send, Palette, Stethoscope, Scissors, Zap, Shield, Clock, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+const customEase = [0.25, 0.46, 0.45, 0.94] as [number, number, number, number];
+
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' as const } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: customEase } },
+};
+
+const slideInLeft = {
+  hidden: { opacity: 0, x: -60 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: customEase } },
+};
+
+const slideInRight = {
+  hidden: { opacity: 0, x: 60 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: customEase } },
 };
 
 const stagger = {
@@ -12,15 +25,71 @@ const stagger = {
 
 const scaleIn = {
   hidden: { opacity: 0, scale: 0.92 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: 'easeOut' as const } },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: customEase } },
 };
 
+/* 카운트업 훅 — 뷰포트에 진입하면 0에서 target까지 카운트 */
+function useCountUp(target: number, duration: number = 2000) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated.current) {
+          hasAnimated.current = true;
+          const start = performance.now();
+          const animate = (now: number) => {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setCount(Math.floor(eased * target));
+            if (progress < 1) requestAnimationFrame(animate);
+          };
+          requestAnimationFrame(animate);
+        }
+      },
+      { threshold: 0.5 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [target, duration]);
+
+  return { count, ref };
+}
+
 function App() {
+  /* ── 스크롤 프로그레스 바 + 네비바 스크롤 효과 ── */
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [navScrolled, setNavScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress(docHeight > 0 ? (scrollTop / docHeight) * 100 : 0);
+      setNavScrolled(scrollTop > 60);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  /* ── 카운트업 통계 수치 ── */
+  const userCount = useCountUp(150000);
+  const shopCount = useCountUp(4200);
+  const matchRate = useCountUp(98);
+
   return (
     <div className="bg-background min-h-screen text-text font-sans">
 
+      {/* 스크롤 프로그레스 바 */}
+      <div className="scroll-progress" style={{ width: `${scrollProgress}%` }}></div>
+
       {/* ───── Navbar ───── */}
-      <nav className="fixed top-4 left-4 right-4 z-50 glass-hero rounded-2xl px-6 md:px-8 py-3 flex items-center justify-between max-w-7xl mx-auto">
+      <nav className={`fixed top-4 left-4 right-4 z-50 rounded-2xl px-6 md:px-8 py-3 flex items-center justify-between max-w-7xl mx-auto transition-all duration-300 ${navScrolled ? 'glass-premium shadow-xl py-2.5' : 'glass-hero py-3'}`}>
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-light flex items-center justify-center">
             <Sparkles className="text-white w-4 h-4" />
@@ -33,150 +102,181 @@ function App() {
           <a href="#shop" className="hover:text-primary transition-colors">탐색</a>
           <a href="#beauty-clip" className="hover:text-primary transition-colors">뷰티 클립</a>
         </div>
-        <button className="btn-primary px-5 py-2 text-sm cursor-pointer">앱 다운로드</button>
+        <button className="btn-primary px-6 py-2.5 text-sm cursor-pointer border border-white/20">앱 다운로드</button>
       </nav>
 
       {/* ═══════════════════════════════════════
-          HERO — 풀스크린 3D + 흰색 글로우 타이틀
+          HERO — 2-Column (좌측 타이틀, 우측 대형 챗봇)
       ═══════════════════════════════════════ */}
-      <section className="relative w-full h-screen overflow-hidden">
-        {/* Spline 3D 배경 */}
-        <iframe
-          src="https://my.spline.design/blendtoollightcolor-xF3dhVj2fdhSiCZtChbuYsLZ/"
-          frameBorder="0"
-          className="absolute inset-0 w-full h-full"
-          title="GLOO 3D Visual"
-          style={{ pointerEvents: 'auto' }}
-        />
+      <section className="relative w-full h-screen overflow-hidden flex items-center pt-16">
+        {/* Spline 3D 배경 - 중앙 배치로 변경 */}
+        <div className="absolute inset-0 w-full h-full z-0">
+          <iframe
+            src="https://my.spline.design/blendtoollightcolor-xF3dhVj2fdhSiCZtChbuYsLZ/"
+            frameBorder="0"
+            className="w-full h-full"
+            title="GLOO 3D Visual"
+            style={{ pointerEvents: 'auto' }}
+          />
+        </div>
 
-        {/* 3D 위에 어두운 래디얼 오버레이 — 타이틀 가독성 확보 */}
-        <div className="absolute inset-0 pointer-events-none" style={{
-          background: 'radial-gradient(ellipse at center, rgba(30,15,50,0.25) 0%, transparent 70%)',
-        }}></div>
+        {/* 텍스트/UI 가독성을 위한 배경 그라데이션 커튼 — 더 투명하게 */}
+        <div className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-r from-background/90 via-background/60 to-transparent"></div>
 
-        {/* Spline 워터마크 완벽 가림 — 크게 + 완전 불투명 */}
+        {/* Spline 워터마크 완벽 가림 */}
         <div className="absolute bottom-0 right-0 w-[260px] h-[55px] z-30"
           style={{ background: 'linear-gradient(135deg, rgba(210,190,245,1), rgba(230,200,235,1))' }}
         ></div>
 
-        {/* 중앙 타이틀 — 흰색 글로우 */}
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.3 }}
-            className="text-center pointer-events-auto"
-          >
+        <div className="container mx-auto px-6 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+
+            {/* ───── 좌측: 메인 타이틀 & CTA ───── */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-hero text-xs font-semibold text-white mb-6"
-              style={{ textShadow: '0 1px 4px rgba(0,0,0,0.15)' }}
+              initial={{ opacity: 0, x: -40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 1, delay: 0.2 }}
+              className="pointer-events-auto"
             >
-              <Zap className="w-3.5 h-3.5" />
-              AI 기반 K-뷰티 예약 플랫폼
-            </motion.div>
-            <h1 className="hero-title text-5xl md:text-7xl lg:text-[5.5rem] font-bold leading-[1.05] tracking-tight mb-5">
-              당신의 모든<br />
-              <span className="text-gradient-bright">K-뷰티</span>
-              <span>,</span><br />
-              하나의 앱으로
-            </h1>
-            <p className="hero-subtitle text-sm md:text-base mb-8 max-w-md mx-auto leading-relaxed">
-              예산과 취향만 알려주세요.<br />
-              AI가 최적의 뷰티샵을 찾아 예약까지 완료합니다.
-            </p>
-            <div className="flex gap-3 justify-center">
-              <button className="btn-primary px-7 py-3.5 text-sm flex items-center gap-2 group cursor-pointer">
-                AI 상담 시작하기
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-              <button className="glass-hero px-7 py-3.5 rounded-full text-sm font-medium text-white hover:bg-white/20 transition-colors cursor-pointer" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
-                뷰티샵 둘러보기
-              </button>
-            </div>
-          </motion.div>
-        </div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-premium text-xs font-bold text-primary-dark mb-6 shadow-sm border border-white/60"
+              >
+                <Zap className="w-3.5 h-3.5 fill-primary text-primary" />
+                No.1 K-뷰티 컨시어지 플랫폼
+              </motion.div>
 
-        {/* 좌측 하단 — 사용자 배지 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2, duration: 0.6 }}
-          className="absolute bottom-8 left-8 md:bottom-12 md:left-12 z-20 glass-hero rounded-2xl px-5 py-3 flex items-center gap-4"
-        >
-          <div className="flex -space-x-2">
-            {[11, 12, 13, 14].map((i) => (
-              <img key={i} src={`https://i.pravatar.cc/80?img=${i}`} alt="사용자" className="w-8 h-8 rounded-full border-2 border-white/50 object-cover" />
-            ))}
-          </div>
-          <div className="text-xs text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
-            <span className="font-bold text-sm">150K+</span>
-            <p className="opacity-80">글로벌 사용자</p>
-          </div>
-        </motion.div>
+              <h1 className="text-5xl md:text-7xl font-extrabold leading-[1.1] tracking-tight mb-6 text-text">
+                당신의 모든<br />
+                <span className="text-gradient">K-뷰티</span>
+                <span>,</span><br />
+                하나의 앱으로
+              </h1>
 
-        {/* 우측 하단 — 프리미엄 챗봇 */}
-        <motion.div
-          initial={{ opacity: 0, y: 30, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="absolute bottom-8 right-8 md:bottom-12 md:right-12 z-20 w-[320px] hidden lg:block"
-        >
-          <div className="glass-premium rounded-3xl overflow-hidden animate-pulse-glow">
-            <div className="bg-gradient-to-r from-primary/90 to-primary-light/90 backdrop-blur px-5 py-3 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-white" />
+              <p className="text-base md:text-lg mb-10 max-w-md leading-relaxed text-text-muted font-medium">
+                예산과 취향만 알려주세요.<br />
+                AI가 최적의 피부과와 살롱을 찾아 즉시 예약해 드립니다.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button className="btn-primary px-8 py-4 text-base flex items-center justify-center gap-2 group cursor-pointer w-full sm:w-auto">
+                  AI 예약 시작하기
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </button>
+                <button className="btn-glass px-8 py-4 text-base text-primary-dark hover:text-primary transition-colors cursor-pointer w-full sm:w-auto flex items-center justify-center">
+                  인기 뷰티샵 보기
+                </button>
               </div>
-              <div>
-                <p className="font-bold text-xs text-white">GLOO AI 컨시어지</p>
-                <p className="text-[10px] text-white/70">항상 온라인 · 3개 국어 지원</p>
-              </div>
-              <div className="ml-auto w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-            </div>
-            <div className="p-4 space-y-2.5 max-h-[200px] overflow-hidden">
-              <div className="flex justify-end">
-                <div className="bg-gradient-to-br from-primary to-primary-light text-white text-[11px] px-3 py-2 rounded-2xl rounded-tr-sm max-w-[80%] shadow-sm">
-                  강남에서 피부 시술 추천해줘 💆‍♀️
+
+              {/* 신뢰도 뱃지 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1, duration: 0.6 }}
+                className="mt-12 flex items-center gap-4"
+              >
+                <div className="flex -space-x-2">
+                  {[11, 12, 13, 14].map((i) => (
+                    <img key={i} src={`https://i.pravatar.cc/80?img=${i}`} alt="사용자" className="w-8 h-8 rounded-full border-2 border-white object-cover shadow-sm" />
+                  ))}
                 </div>
-              </div>
-              <div className="flex justify-start">
-                <div className="bg-white/80 text-text text-[11px] px-3 py-2 rounded-2xl rounded-tl-sm max-w-[85%] shadow-sm">
-                  <p className="mb-1.5 font-medium">추천 클리닉 3곳이에요! ✨</p>
-                  <div className="space-y-1">
-                    {[
-                      { name: '루미스킨', price: '₩280,000', star: '4.9' },
-                      { name: '하나피부과', price: '₩250,000', star: '4.8' },
-                      { name: '서울글로우', price: '₩320,000', star: '4.9' },
-                    ].map((c, i) => (
-                      <div key={i} className="bg-white rounded-lg px-2.5 py-1.5 flex items-center justify-between shadow-sm">
-                        <span className="font-medium">{c.name}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-amber-500 flex items-center gap-0.5"><Star className="w-2.5 h-2.5 fill-amber-400" />{c.star}</span>
-                          <span className="text-primary font-bold">{c.price}</span>
-                        </div>
+                <div className="text-xs text-text-muted flex flex-col">
+                  <span ref={userCount.ref} className="font-extrabold text-sm text-text">{userCount.count.toLocaleString()}+</span>
+                  <span className="font-medium">글로벌 사용자 예약 완료</span>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* ───── 우측: 메인 대형 챗봇 UI ───── */}
+            <motion.div
+              initial={{ opacity: 0, y: 40, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.6, type: "spring", stiffness: 100 }}
+              className="hidden lg:block relative z-20"
+            >
+              {/* 장식용 글로우 배경 */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-white/20 blur-[100px] -z-10 rounded-full"></div>
+
+              <div className="glass-premium rounded-3xl overflow-hidden shadow-2xl animate-float border border-white/60">
+                {/* 챗봇 헤더 */}
+                <div className="bg-white/60 backdrop-blur-md px-6 py-4 flex items-center gap-4 border-b border-white/30">
+                  <div className="relative">
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center shadow-lg">
+                      <Sparkles className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white animate-pulse"></div>
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm text-text">GLOO AI 컨시어지</p>
+                    <p className="text-[11px] text-text-muted font-medium">검증된 AI 뷰티 에이전트</p>
+                  </div>
+                  <div className="ml-auto flex gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-primary/20"></div>
+                    <div className="w-2 h-2 rounded-full bg-primary/40"></div>
+                    <div className="w-2 h-2 rounded-full bg-primary/60"></div>
+                  </div>
+                </div>
+
+                {/* 챗봇 대화 내용 */}
+                <div className="p-6 space-y-4 max-h-[320px] overflow-y-auto hide-scrollbar bg-white/10">
+
+                  {/* 사용자 메시지 */}
+                  <div className="flex justify-end">
+                    <div className="btn-primary text-sm px-4 py-3 rounded-2xl rounded-tr-sm max-w-[80%] shadow-md">
+                      강남에서 피부 시술 추천해줘 💆‍♀️<br />예산은 30만원 정도야.
+                    </div>
+                  </div>
+
+                  {/* AI 응답 */}
+                  <div className="flex justify-start">
+                    <div className="bg-white/90 text-text text-sm px-4 py-3 rounded-2xl rounded-tl-sm max-w-[90%] shadow-lg border border-white/50">
+                      <p className="mb-2.5 font-bold text-primary-dark">조건에 맞는 클리닉 3곳이에요! ✨</p>
+                      <div className="space-y-2">
+                        {[
+                          { name: '루미스킨 클리닉', price: '₩280,000', star: '4.9', tag: '페이셜' },
+                          { name: '하나피부과', price: '₩250,000', star: '4.8', tag: '보톡스' },
+                          { name: '서울글로우', price: '₩320,000', star: '4.9', tag: '레이저' },
+                        ].map((c, i) => (
+                          <div key={i} className="bg-background-light rounded-xl px-3 py-2 flex items-center justify-between shadow-sm border border-purple-50 group hover:border-primary/30 transition-colors cursor-pointer">
+                            <div>
+                              <span className="font-bold text-xs">{c.name}</span>
+                              <div className="flex items-center gap-1 mt-0.5">
+                                <span className="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-[9px] font-bold">{c.tag}</span>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-primary font-bold text-sm block">{c.price}</span>
+                              <span className="text-amber-500 flex items-center justify-end gap-0.5 text-[10px] font-bold"><Star className="w-2.5 h-2.5 fill-amber-400" />{c.star}</span>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    </div>
+                  </div>
+
+                  {/* 사용자 메시지 2 */}
+                  <div className="flex justify-end">
+                    <div className="btn-primary text-sm px-4 py-3 rounded-2xl rounded-tr-sm shadow-md">
+                      루미스킨 금요일 피부관리 예약해줘! 🙏
+                    </div>
+                  </div>
+                </div>
+
+                {/* 챗봇 입력창 */}
+                <div className="p-4 bg-white/40 border-t border-white/30 backdrop-blur-md">
+                  <div className="flex items-center gap-2 bg-white rounded-full px-4 py-2.5 shadow-inner border border-purple-100">
+                    <input type="text" placeholder="어떤 시술을 찾고 계신가요?" className="flex-1 bg-transparent text-sm font-medium outline-none placeholder:text-text-muted/60" readOnly />
+                    <button className="w-8 h-8 rounded-full btn-primary flex items-center justify-center text-white shrink-0 cursor-pointer shadow-md">
+                      <Send className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </div>
               </div>
-              <div className="flex justify-end">
-                <div className="bg-gradient-to-br from-primary to-primary-light text-white text-[11px] px-3 py-2 rounded-2xl rounded-tr-sm shadow-sm">
-                  루미스킨 예약해줘! 🙏
-                </div>
-              </div>
-            </div>
-            <div className="px-4 pb-4">
-              <div className="flex items-center gap-2 bg-white/60 rounded-full px-3 py-2 border border-white/50">
-                <input type="text" placeholder="메시지를 입력하세요..." className="flex-1 bg-transparent text-[11px] outline-none placeholder:text-text-muted" readOnly />
-                <button className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white shrink-0 cursor-pointer shadow-md">
-                  <Send className="w-3 h-3" />
-                </button>
-              </div>
-            </div>
+            </motion.div>
           </div>
-        </motion.div>
+        </div>
       </section>
 
       {/* ───── 신뢰 지표 밴드 ───── */}
@@ -184,10 +284,10 @@ function App() {
         <div className="container mx-auto px-6">
           <div className="flex flex-wrap justify-center gap-8 md:gap-16 items-center text-text-muted text-sm">
             {[
-              { icon: <Shield className="w-4 h-4 text-primary" />, text: '검증된 4,000+ 뷰티샵' },
+              { icon: <Shield className="w-4 h-4 text-primary" />, text: <span>검증된 <span ref={shopCount.ref} className="font-bold">{shopCount.count.toLocaleString()}</span>+ 뷰티샵</span> },
               { icon: <Globe className="w-4 h-4 text-primary" />, text: '3개 국어 실시간 번역' },
               { icon: <Clock className="w-4 h-4 text-primary" />, text: '평균 예약 소요 2분' },
-              { icon: <Star className="w-4 h-4 text-primary" />, text: '평균 평점 4.8' },
+              { icon: <Star className="w-4 h-4 text-primary" />, text: <span>매칭 성공률 <span ref={matchRate.ref} className="font-bold">{matchRate.count}</span>%</span> },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-2 font-medium">{item.icon}{item.text}</div>
             ))}
@@ -237,7 +337,7 @@ function App() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] -z-10"></div>
         <div className="container mx-auto px-6">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="grid lg:grid-cols-2 gap-16 items-center">
-            <motion.div variants={fadeUp}>
+            <motion.div variants={slideInLeft}>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-xs font-semibold text-primary mb-5">
                 <User className="w-3.5 h-3.5" />
                 온보딩
@@ -256,7 +356,7 @@ function App() {
               </div>
             </motion.div>
 
-            <motion.div variants={scaleIn} className="relative">
+            <motion.div variants={slideInRight} className="relative">
               <div className="glass-premium rounded-3xl p-8 max-w-sm mx-auto animate-float">
                 <div className="text-center mb-6">
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-light mx-auto flex items-center justify-center text-white mb-4 shadow-lg">
@@ -278,7 +378,7 @@ function App() {
                     </div>
                   ))}
                 </div>
-                <button className="btn-primary w-full py-3 mt-6 text-sm cursor-pointer">계속하기</button>
+                <button className="btn-primary w-full py-3.5 mt-6 text-sm cursor-pointer font-bold">계속하기</button>
               </div>
               <div className="absolute -top-10 -right-10 w-40 h-40 bg-secondary/30 rounded-full blur-3xl -z-10"></div>
               <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-violet-200/30 rounded-full blur-3xl -z-10"></div>
@@ -333,7 +433,7 @@ function App() {
                 </div>
                 <div className="flex items-center gap-2 bg-white/60 rounded-full px-4 py-2 border border-white/50">
                   <input type="text" placeholder="메시지를 입력하세요..." className="flex-1 bg-transparent text-sm outline-none placeholder:text-text-muted" readOnly />
-                  <button className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white shrink-0 cursor-pointer shadow-md">
+                  <button className="w-8 h-8 rounded-full btn-primary flex items-center justify-center text-white shrink-0 cursor-pointer shadow-md">
                     <Send className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -405,7 +505,7 @@ function App() {
                     </div>
                     <span className="text-base font-bold text-gradient">{shop.price}</span>
                   </div>
-                  <button className="w-full py-3 rounded-2xl btn-primary text-sm flex items-center justify-center gap-2 cursor-pointer">
+                  <button className="w-full py-3 mt-2 rounded-2xl btn-primary text-sm flex items-center justify-center gap-2 cursor-pointer font-bold">
                     <Calendar className="w-4 h-4" /> 지금 예약
                   </button>
                 </div>
@@ -478,7 +578,7 @@ function App() {
                     </div>
                   ))}
                 </div>
-                <button className="w-full mt-6 btn-primary py-3 text-sm flex items-center justify-center gap-1 cursor-pointer">
+                <button className="w-full mt-8 btn-primary py-3.5 text-sm flex items-center justify-center gap-1 cursor-pointer font-bold border border-white/20">
                   전체 리포트 보기 <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
@@ -549,10 +649,10 @@ function App() {
                 150K+ 여행자가 GLOO로 완벽한 맞춤형<br />뷰티 경험을 만들고 있습니다.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="bg-white text-primary-dark px-10 py-4 rounded-full text-lg font-bold hover:bg-white/90 transition-colors shadow-2xl cursor-pointer">
+                <button className="btn-primary px-10 py-4 rounded-full text-lg font-bold shadow-2xl cursor-pointer">
                   GLOO 다운로드
                 </button>
-                <button className="border-2 border-white/40 text-white px-10 py-4 rounded-full text-lg font-bold hover:bg-white/10 transition-colors cursor-pointer">
+                <button className="btn-glass px-10 py-4 rounded-full text-lg font-bold cursor-pointer">
                   더 알아보기
                 </button>
               </div>

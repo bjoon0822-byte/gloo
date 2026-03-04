@@ -9,7 +9,8 @@
   --color-background-light: #FFFFFF;
   --color-text: #1a1020;
   --color-text-muted: rgba(26, 16, 32, 0.55);
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-sans: "Pretendard Variable", "Pretendard", "Outfit", system-ui, -apple-system, sans-serif;
+  --font-heading: "Outfit", "Pretendard Variable", system-ui, sans-serif;
 }
 
 body {
@@ -20,6 +21,47 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+}
+
+/* 제목 전용 폰트 — Outfit (기하학적 모던) */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+}
+
+/* 스크롤 프로그레스 바 */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light), var(--color-secondary));
+  z-index: 9999;
+  transition: width 0.1s linear;
+}
+
+/* 그라데이션 텍스트 와이프 애니메이션 */
+@keyframes gradient-wipe {
+  0% {
+    background-size: 0% 100%;
+  }
+
+  100% {
+    background-size: 100% 100%;
+  }
+}
+
+.text-gradient-animated {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-wipe 1s ease-out forwards;
 }
 
 ::selection {
@@ -88,13 +130,38 @@ body {
   color: white;
   border-radius: 9999px;
   font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(192, 132, 252, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 4px 14px 0 rgba(192, 132, 252, 0.39),
+    inset 0 -2px 0 0 rgba(0, 0, 0, 0.1),
+    inset 0 2px 0 0 rgba(255, 255, 255, 0.2);
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(192, 132, 252, 0.45);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 8px 25px 0 rgba(192, 132, 252, 0.5),
+    inset 0 -2px 0 0 rgba(0, 0, 0, 0.15),
+    inset 0 2px 0 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn-glass {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  border-radius: 9999px;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.btn-glass:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 /* 카드 호버 효과 */
