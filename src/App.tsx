@@ -312,7 +312,7 @@ function App() {
               { icon: <Globe className="w-7 h-7" />, grad: 'from-violet-500 to-indigo-400', borderColor: '#8B5CF6', title: '실시간 자동 번역', desc: '영어, 일본어, 중국어로 자유롭게 대화하세요. 오역 걱정 없이 자연스러운 소통이 가능합니다.', highlight: '3개 국어 지원', stat: '99.2%', statLabel: '번역 정확도' },
               { icon: <MapPin className="w-7 h-7" />, grad: 'from-fuchsia-500 to-pink-400', borderColor: '#D946EF', title: 'O2O 연계', desc: '지도 기반 검색과 일정 관리를 통합하여 온라인 예약부터 오프라인 뷰티 경험까지 원스톱으로.', highlight: '전국 4,000+ 매장', stat: '4,200+', statLabel: '제휴 매장' },
             ].map((f, i) => (
-              <motion.div key={i} variants={scaleIn} className="glass-premium p-8 rounded-3xl card-hover cursor-pointer relative overflow-hidden" style={{ borderTop: `3px solid ${f.borderColor}` }}>
+              <motion.div key={i} variants={scaleIn} className={`glass-premium rounded-3xl p-8 card-hover card-depth glow-accent border-t-[3px]`} style={{ borderColor: ['#FF2D78', '#8B5CF6', '#D946EF'][i] }}>
                 <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${f.grad} flex items-center justify-center mb-6 text-white shadow-lg`}>
                   {f.icon}
                 </div>
@@ -330,8 +330,12 @@ function App() {
       </section>
 
       {/* ───── 온보딩 ───── */}
-      <section className="py-24 md:py-32 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFF 0%, #F0E8FF 50%, #F3EEFF 100%)' }}>
+      <section className="py-24 md:py-32 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFF 0%, #FFE9F5 40%, #F0E8FF 70%, #F3EEFF 100%)' }}>
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] -z-10"></div>
+        {/* 패럴랙스 장식 */}
+        <div className="parallax-dot w-4 h-4 bg-accent top-20 left-[15%]" />
+        <div className="parallax-dot w-6 h-6 bg-primary top-40 right-[20%]" />
+        <div className="parallax-dot w-3 h-3 bg-primary-light bottom-20 left-[30%]" />
         <div className="container mx-auto px-6">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div variants={slideInLeft}>
@@ -346,7 +350,7 @@ function App() {
               <div className="space-y-5">
                 {['국적 및 언어 선택', '관심 뷰티 분야 선택 (헤어, 스킨, 메디컬)', '피부 고민 간편 진단'].map((step, i) => (
                   <div key={i} className="flex items-center gap-4 glass-premium p-4 rounded-2xl card-hover">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-light text-white flex items-center justify-center text-sm font-bold shrink-0 shadow-md">{i + 1}</div>
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-primary-light text-white flex items-center justify-center text-sm font-bold shrink-0 shadow-md shadow-accent/20">{i + 1}</div>
                     <span className="text-sm font-medium">{step}</span>
                   </div>
                 ))}
@@ -369,7 +373,7 @@ function App() {
                     { icon: <Heart className="w-5 h-5" />, label: '스킨케어', active: true },
                     { icon: <Stethoscope className="w-5 h-5" />, label: '메디컬', active: false },
                   ].map((item, i) => (
-                    <div key={i} className={`p-4 rounded-2xl flex flex-col items-center gap-2 text-sm font-medium transition-all cursor-pointer ${item.active ? 'bg-gradient-to-br from-primary to-primary-light text-white shadow-lg shadow-primary/20' : 'bg-white/60 text-text-muted hover:bg-white/80 hover:shadow-md'}`}>
+                    <div key={i} className={`p-4 rounded-2xl flex flex-col items-center gap-2 text-sm font-medium transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95 ${item.active ? 'bg-gradient-to-br from-accent to-primary-light text-white shadow-lg shadow-accent/20' : 'bg-white/60 text-text-muted hover:bg-white/80 hover:shadow-md'}`}>
                       {item.icon}
                       {item.label}
                     </div>
@@ -391,7 +395,7 @@ function App() {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div variants={scaleIn} className="order-2 lg:order-1">
               <div className="glass-premium rounded-3xl p-6 max-w-md mx-auto">
-                <div className="bg-gradient-to-r from-primary to-primary-light rounded-2xl px-5 py-3 flex items-center gap-3 mb-4">
+                <div className="bg-gradient-to-r from-accent to-primary-light rounded-2xl px-5 py-3 flex items-center gap-3 mb-4">
                   <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-white">
                     <Sparkles className="w-4 h-4" />
                   </div>
@@ -469,6 +473,9 @@ function App() {
       {/* ───── SHOP 탐색 (AI 이미지 적용) ───── */}
       <section id="shop" className="py-24 md:py-32 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFF 0%, #F0E8FF 100%)' }}>
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-secondary/10 rounded-full blur-[120px] -z-10"></div>
+        {/* 패럴랙스 장식 */}
+        <div className="parallax-dot w-5 h-5 bg-accent top-16 right-[10%]" />
+        <div className="parallax-dot w-3 h-3 bg-primary bottom-32 left-[12%]" />
         <div className="container mx-auto px-6 relative">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={fadeUp} className="text-center max-w-3xl mx-auto mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-xs font-semibold text-primary mb-6">
@@ -485,7 +492,7 @@ function App() {
               { name: 'JUNO HAIR 살롱', location: '홍대, 서울', price: '₩80,000~', rating: 4.8, tags: ['헤어', '컬러'], img: '/images/salon_junohair.png' },
               { name: '서울글로우 피부과', location: '신사동, 서울', price: '₩350,000~', rating: 4.9, tags: ['보톡스', '필러'], img: '/images/clinic_seoulglow.png' },
             ].map((shop, i) => (
-              <motion.div key={i} variants={scaleIn} className="glass-premium rounded-3xl overflow-hidden card-hover cursor-pointer img-card">
+              <motion.div key={i} variants={scaleIn} className="glass-premium rounded-3xl overflow-hidden card-hover card-depth glow-accent cursor-pointer img-card">
                 <div className="h-48 relative overflow-hidden">
                   <img src={shop.img} alt={shop.name} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
@@ -498,7 +505,7 @@ function App() {
                   <p className="text-text-muted text-xs flex items-center gap-1 mb-4"><MapPin className="w-3 h-3" /> {shop.location}</p>
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex gap-2">
-                      {shop.tags.map((t) => <span key={t} className="bg-primary/10 text-primary px-2.5 py-1 rounded-full text-[10px] font-bold">{t}</span>)}
+                      {shop.tags.map((t) => <span key={t} className="bg-accent/10 text-accent px-2.5 py-1 rounded-full text-[10px] font-bold">{t}</span>)}
                     </div>
                     <span className="text-base font-bold text-gradient">{shop.price}</span>
                   </div>
@@ -561,7 +568,7 @@ function App() {
                     <div key={bar.label}>
                       <div className="flex justify-between text-xs mb-1.5">
                         <span className="font-medium">{bar.label}</span>
-                        <span className="font-bold text-primary">{bar.pct}%</span>
+                        <span className="font-bold text-accent">{bar.pct}%</span>
                       </div>
                       <div className="w-full h-3 bg-white/60 rounded-full overflow-hidden shadow-inner">
                         <motion.div
@@ -607,8 +614,8 @@ function App() {
                 <div key={i} className="min-w-[240px] md:min-w-[280px] snap-start shrink-0">
                   <div className={`bg-gradient-to-b ${clip.gradient} rounded-3xl h-[340px] md:h-[400px] relative overflow-hidden group cursor-pointer card-hover`}>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-16 h-16 rounded-full bg-white/70 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
-                        <Play className="w-7 h-7 text-primary ml-1" />
+                      <div className="w-16 h-16 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center group-hover:scale-125 transition-all duration-300 shadow-xl group-hover:shadow-accent/30">
+                        <Play className="w-7 h-7 text-accent ml-1" />
                       </div>
                     </div>
                     {/* 재생 시간 */}
