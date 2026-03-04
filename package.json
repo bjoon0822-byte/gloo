@@ -10,7 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.39",
+    "@ai-sdk/react": "^3.0.113",
     "@tailwindcss/vite": "^4.2.1",
+    "ai": "^6.0.111",
     "clsx": "^2.1.1",
     "framer-motion": "^12.34.4",
     "lucide-react": "^0.576.0",

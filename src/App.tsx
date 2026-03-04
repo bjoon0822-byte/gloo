@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Sparkles, MessageCircle, Globe, MapPin, ArrowRight, Star, Heart, Calendar, ChevronRight, Search, User, Play, Send, Palette, Stethoscope, Scissors, Zap, Shield, Clock, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
-
+import { useChat } from '@ai-sdk/react';
 const customEase = [0.25, 0.46, 0.45, 0.94] as [number, number, number, number];
 
 const fadeUp = {
@@ -62,6 +62,15 @@ function useCountUp(target: number, duration: number = 2000) {
 }
 
 function App() {
+  /* ── AI 챗봇 State (Vercel AI SDK) ── */
+  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat() as any;
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom of chat
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
   /* ── 스크롤 프로그레스 바 + 네비바 스크롤 효과 ── */
   const [scrollProgress, setScrollProgress] = useState(0);
   const [navScrolled, setNavScrolled] = useState(false);
@@ -405,8 +414,8 @@ function App() {
         <div className="container mx-auto px-6 relative">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <motion.div variants={scaleIn} className="order-2 lg:order-1">
-              <div className="glass-premium rounded-3xl p-4 sm:p-6 max-w-md mx-auto">
-                <div className="bg-gradient-to-r from-accent to-primary-light rounded-2xl px-5 py-3 flex items-center gap-3 mb-4">
+              <div className="glass-premium rounded-3xl p-4 sm:p-6 max-w-md mx-auto h-[500px] flex flex-col">
+                <div className="bg-gradient-to-r from-accent to-primary-light rounded-2xl px-5 py-3 flex items-center gap-3 mb-4 shrink-0">
                   <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-white">
                     <Sparkles className="w-4 h-4" />
                   </div>
@@ -415,40 +424,72 @@ function App() {
                     <p className="text-[10px] text-white/70">항상 온라인 · 실시간 응답</p>
                   </div>
                 </div>
-                <div className="space-y-3 mb-4">
-                  <div className="flex justify-end">
-                    <div className="bg-gradient-to-br from-primary to-primary-light text-white text-xs sm:text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm max-w-[85%] shadow-sm">
-                      강남에서 30만원 정도 예산으로 피부 시술 받고 싶어요 💆‍♀️
-                    </div>
-                  </div>
-                  <div className="flex justify-start">
-                    <div className="bg-white/80 text-text text-xs sm:text-sm px-4 py-2.5 rounded-2xl rounded-tl-sm max-w-[85%] shadow-sm">
-                      <p className="mb-2 font-medium">추천 클리닉 3곳을 찾았습니다! ✨</p>
-                      <div className="space-y-1.5">
-                        {['✨ 루미스킨 — ₩280,000', '🌿 하나피부과 — ₩250,000', '💎 서울글로우 — ₩320,000'].map((c, i) => (
-                          <div key={i} className="bg-white rounded-xl px-2.5 py-2 text-[10px] sm:text-xs font-medium shadow-sm border border-purple-50">{c}</div>
-                        ))}
+
+                <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2 custom-scrollbar">
+                  {messages.length === 0 && (
+                    <div className="flex justify-start">
+                      <div className="text-xs sm:text-sm px-4 py-2.5 rounded-2xl max-w-[85%] shadow-sm bg-white/80 text-text rounded-tl-sm whitespace-pre-wrap">
+                        안녕하세요! GLOO AI 컨시어지입니다. K-뷰티 예약을 도와드릴까요? (예: 명동 10만원대 피부과 추천해줘)
                       </div>
-                      <p className="mt-2 text-xs sm:text-sm">예약해 드릴까요? 🗓️</p>
                     </div>
-                  </div>
-                  <div className="flex justify-end">
-                    <div className="bg-gradient-to-br from-primary to-primary-light text-white text-xs sm:text-sm px-4 py-2.5 rounded-2xl rounded-tr-sm shadow-sm">
-                      루미스킨 3월 10일로 예약해 주세요! 🙏
+                  )}
+                  {messages.map((m: any) => (
+                    <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`text-xs sm:text-sm px-4 py-2.5 rounded-2xl max-w-[85%] shadow-sm ${m.role === 'user'
+                        ? 'bg-gradient-to-br from-primary to-primary-light text-white rounded-tr-sm'
+                        : 'bg-white/80 text-text rounded-tl-sm whitespace-pre-wrap'
+                        }`}>
+                        {/* Function Calling Tool UI Rendering */}
+                        {m.toolInvocations?.map((toolInvocation: any) => {
+                          const toolCallId = toolInvocation.toolCallId;
+                          if (toolInvocation.toolName === 'search_shops') {
+                            if ('result' in toolInvocation) {
+                              const results = toolInvocation.result;
+                              return (
+                                <div key={toolCallId} className="mt-2 space-y-2 w-full">
+                                  <p className="font-bold text-xs text-primary mb-1">🔍 샵 검색 결과</p>
+                                  {results.length > 0 ? results.map((shop: any, i: number) => (
+                                    <div key={i} className="bg-white rounded-xl px-3 py-2 text-xs shadow-sm border border-purple-50">
+                                      <p className="font-bold text-accent">{shop.name}</p>
+                                      <p className="text-[10px] text-text-muted">{shop.region} • ⭐ {shop.rating}</p>
+                                      <p className="text-[10px] mt-1 text-primary-dark font-medium">{shop.top_treatments?.join(' / ')}</p>
+                                    </div>
+                                  )) : <p className="text-xs text-text-muted">조건에 맞는 샵을 찾지 못했어요.</p>}
+                                </div>
+                              )
+                            } else {
+                              return <div key={toolCallId} className="text-xs text-text-muted animate-pulse">DB 검색 중... 🔍</div>;
+                            }
+                          }
+                          return null;
+                        })}
+                        {m.content}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex justify-start">
-                    <div className="bg-white/80 text-text text-xs sm:text-sm px-4 py-2.5 rounded-2xl rounded-tl-sm max-w-[85%] shadow-sm">
-                      ✅ 예약 완료!
+                  ))}
+                  {isLoading && (
+                    <div className="flex justify-start">
+                      <div className="bg-white/80 text-text-muted text-xs px-4 py-2.5 rounded-2xl rounded-tl-sm shadow-sm flex gap-1">
+                        <span className="animate-bounce">.</span><span className="animate-bounce" style={{ animationDelay: '0.2s' }}>.</span><span className="animate-bounce" style={{ animationDelay: '0.4s' }}>.</span>
+                      </div>
                     </div>
-                  </div>
+                  )}
+                  <div ref={messagesEndRef} />
                 </div>
-                <div className="flex items-center gap-2 bg-white/60 rounded-full px-4 py-2 border border-white/50">
-                  <input type="text" placeholder="메시지..." className="flex-1 bg-transparent text-xs sm:text-sm outline-none placeholder:text-text-muted" readOnly />
-                  <button className="w-8 h-8 rounded-full btn-primary flex items-center justify-center text-white shrink-0 cursor-pointer shadow-md">
+
+                <form onSubmit={handleSubmit} className="flex items-center gap-2 bg-white/60 rounded-full px-4 py-2 border border-white/50 shrink-0">
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={handleInputChange}
+                    placeholder="메시지 입력..."
+                    className="flex-1 bg-transparent text-xs sm:text-sm outline-none placeholder:text-text-muted disabled:opacity-50"
+                    disabled={isLoading}
+                  />
+                  <button type="submit" disabled={isLoading || !input.trim()} className="w-8 h-8 rounded-full btn-primary flex items-center justify-center text-white shrink-0 cursor-pointer shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
                     <Send className="w-3.5 h-3.5" />
                   </button>
-                </div>
+                </form>
               </div>
             </motion.div>
 
