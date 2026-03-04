@@ -480,13 +480,13 @@ function App() {
                 <form onSubmit={handleSubmit} className="flex items-center gap-2 bg-white/60 rounded-full px-4 py-2 border border-white/50 shrink-0">
                   <input
                     type="text"
-                    value={input}
+                    value={input || ''}
                     onChange={handleInputChange}
                     placeholder="메시지 입력..."
                     className="flex-1 bg-transparent text-xs sm:text-sm outline-none placeholder:text-text-muted disabled:opacity-50"
                     disabled={isLoading}
                   />
-                  <button type="submit" disabled={isLoading || !input.trim()} className="w-8 h-8 rounded-full btn-primary flex items-center justify-center text-white shrink-0 cursor-pointer shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+                  <button type="submit" disabled={isLoading || !input?.trim()} className="w-8 h-8 rounded-full btn-primary flex items-center justify-center text-white shrink-0 cursor-pointer shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
                     <Send className="w-3.5 h-3.5" />
                   </button>
                 </form>
