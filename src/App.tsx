@@ -144,9 +144,11 @@ function App() {
     }
   }, [input, isLoading, messages]);
 
-  // Auto-scroll to bottom of chat
+  // Auto-scroll to bottom of chat (only when there are messages to avoid jump on mount)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messages.length > 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages]);
 
   /* ── 스크롤 프로그레스 바 + 네비바 스크롤 효과 ── */
@@ -161,6 +163,8 @@ function App() {
       setNavScrolled(scrollTop > 60);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
+    // Force scroll to top on initial mount/refresh to fix "starting in the middle" bug
+    window.scrollTo(0, 0);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -769,14 +773,14 @@ function App() {
 
       {/* ───── 최하단 CTA (프리미엄 리디자인) ───── */}
       <section className="py-24 md:py-40 relative overflow-hidden">
-        {/* 멀티 레이어 그라데이션 배경 */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#6B21A8] via-[#9333EA] to-[#C026D3]"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+        {/* 멀티 레이어 그라데이션 배경 (세련된 브랜드 톤앤매너 - Deep Plum & Violet) */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1A1020] via-[#2A1B3D] to-[#1A1020]"></div>
+        <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_50%_-20%,#C084FC_0%,transparent_50%)]"></div>
 
-        {/* 메쉬 그라데이션 장식 */}
-        <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-gradient-to-br from-fuchsia-400/30 to-transparent rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-gradient-to-tl from-violet-300/25 to-transparent rounded-full blur-[100px] translate-x-1/3 translate-y-1/3"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-indigo-500/10 rounded-full blur-[80px]"></div>
+        {/* 메쉬 그라데이션 장식 (더 미묘하고 고급스럽게) */}
+        <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-gradient-to-br from-purple-500/10 to-transparent rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-gradient-to-tl from-indigo-500/10 to-transparent rounded-full blur-[100px] translate-x-1/3 translate-y-1/3"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-gradient-to-r from-purple-500/5 via-transparent to-transparent rounded-full blur-[100px]"></div>
 
         {/* 플로팅 유리 장식 */}
         <motion.div
