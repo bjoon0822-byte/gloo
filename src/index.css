@@ -386,3 +386,39 @@ html {
 .animate-sparkle {
   animation: sparkle 3s ease-in-out infinite;
 }
+
+/* ──── 모바일 앱 Safe Area 유틸리티 ──── */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ──── 페이드 인 애니메이션 ──── */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+/* ──── 스크롤바 숨김 (하단 탭바 페이지용) ──── */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
