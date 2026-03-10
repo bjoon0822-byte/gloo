@@ -101,7 +101,7 @@ export default function ChatPage() {
                                                     const discountRate = treatment ? Math.round((originalPrice - treatment.price) / originalPrice * 100) : 0;
 
                                                     return (
-                                                        <a key={i} href={shop.lat && shop.lng ? `https://map.kakao.com/link/map/${encodeURIComponent(shop.name)},${shop.lat},${shop.lng}` : '#'} target="_blank" rel="noopener noreferrer" className="bg-white rounded-xl p-2.5 flex gap-3 shadow-sm border border-purple-50 mb-2 hover:shadow-md hover:border-primary/30 cursor-pointer transition-all no-underline text-inherit block">
+                                                        <a key={i} href={shop.lat && shop.lng ? `https://www.google.com/maps/search/?api=1&query=${shop.lat},${shop.lng}` : '#'} target="_blank" rel="noopener noreferrer" className="bg-white rounded-xl p-2.5 flex gap-3 shadow-sm border border-purple-50 mb-2 hover:shadow-md hover:border-primary/30 cursor-pointer transition-all no-underline text-inherit block">
                                                             <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden shrink-0">
                                                                 {i < 2 && <div className="absolute top-0 left-0 bg-pink-500 text-white text-[9px] font-bold px-1.5 py-0.5 z-10 rounded-br-lg">HOT</div>}
                                                                 {i === 2 && <div className="absolute top-0 left-0 bg-pink-400 text-white text-[9px] font-bold px-1.5 py-0.5 z-10 rounded-br-lg">NEW</div>}
@@ -158,7 +158,7 @@ export default function ChatPage() {
                                                                         <Popup className="text-xs">
                                                                             <strong>{shop.name}</strong><br />
                                                                             <span className="text-gray-500">{shop.category}</span><br />
-                                                                            <a href={`https://map.kakao.com/link/map/${encodeURIComponent(shop.name)},${shop.lat},${shop.lng}`} target="_blank" rel="noopener noreferrer" className="text-primary mt-1 inline-block font-bold">카카오맵 열기</a>
+                                                                            <a href={`https://www.google.com/maps/search/?api=1&query=${shop.lat},${shop.lng}`} target="_blank" rel="noopener noreferrer" className="text-primary mt-1 inline-block font-bold">지도에서 보기</a>
                                                                         </Popup>
                                                                     </Marker>
                                                                 );

@@ -233,8 +233,8 @@ export default function SearchPage() {
                             const discountRate = treatment ? Math.round((originalPrice - treatment.price) / originalPrice * 100) : 0;
 
                             const mapUrl = shop.lat && shop.lng
-                                ? `https://map.kakao.com/link/map/${encodeURIComponent(shop.name)},${shop.lat},${shop.lng}`
-                                : `https://map.kakao.com/link/search/${encodeURIComponent(shop.name)}`;
+                                ? `https://www.google.com/maps/search/?api=1&query=${shop.lat},${shop.lng}&query_place_id=${encodeURIComponent(shop.name)}`
+                                : `https://www.google.com/maps/search/${encodeURIComponent(shop.name)}`;
 
                             return (
                                 <a
