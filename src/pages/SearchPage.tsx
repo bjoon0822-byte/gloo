@@ -19,6 +19,8 @@ interface Shop {
     region: string;
     city: string;
     address: string;
+    lat: number;
+    lng: number;
     rating: number;
     review_count: number;
     image_url: string;
@@ -230,10 +232,17 @@ export default function SearchPage() {
                             const originalPrice = treatment ? Math.round(treatment.price * 1.3) : 0;
                             const discountRate = treatment ? Math.round((originalPrice - treatment.price) / originalPrice * 100) : 0;
 
+                            const mapUrl = shop.lat && shop.lng
+                                ? `https://map.kakao.com/link/map/${encodeURIComponent(shop.name)},${shop.lat},${shop.lng}`
+                                : `https://map.kakao.com/link/search/${encodeURIComponent(shop.name)}`;
+
                             return (
-                                <div
+                                <a
                                     key={shop.id}
-                                    className="flex gap-3 p-3 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition-shadow cursor-pointer"
+                                    href={mapUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex gap-3 p-3 bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:border-primary/30 transition-all cursor-pointer no-underline text-inherit block"
                                 >
                                     <div className="relative w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-primary/5">
                                         {shop.image_url ? (
@@ -276,7 +285,7 @@ export default function SearchPage() {
                                             <span className="text-[9px] text-text-muted mt-0.5">🕒 {shop.operating_hours}</span>
                                         )}
                                     </div>
-                                </div>
+                                </a>
                             );
                         })}
                     </div>
