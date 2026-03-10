@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
-import { Sparkles, Send, ArrowLeft } from 'lucide-react';
+import { Sparkles, Send, ArrowLeft, Calendar } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useChat } from '../hooks/useChat';
 import 'leaflet/dist/leaflet.css';
 
@@ -11,6 +11,7 @@ import 'leaflet/dist/leaflet.css';
  */
 export default function ChatPage() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { messages, input, isLoading, handleInputChange, handleSubmit, addScrollRef } = useChat();
     const chatScrollRef = useRef<HTMLDivElement>(null);
 
@@ -18,6 +19,22 @@ export default function ChatPage() {
     useEffect(() => {
         addScrollRef(chatScrollRef.current);
     }, [addScrollRef]);
+
+    // 예약 파라미터 확인 및 자동 메시지 전송
+    useEffect(() => {
+        const searchParams = new URLSearchParams(location.search);
+        const bookingShopId = searchParams.get('booking_shop_id');
+        const shopName = searchParams.get('shop_name');
+
+        if (bookingShopId && shopName && messages.length === 0 && !isLoading) {
+            // URL 파라미터 지우기 (새로고침 시 재전송 방지)
+            navigate('/chat', { replace: true });
+
+            // 예약 자동 메시지 발송
+            const mockEvent = { preventDefault: () => { } } as React.FormEvent;
+            handleSubmit(mockEvent, `'${shopName}' 샵 예약하고 싶어.`);
+        }
+    }, [location.search, messages.length, isLoading, navigate, handleSubmit]);
 
     return (
         <div className="flex flex-col h-[100dvh] bg-background">
@@ -101,7 +118,7 @@ export default function ChatPage() {
                                                     const discountRate = treatment ? Math.round((originalPrice - treatment.price) / originalPrice * 100) : 0;
 
                                                     return (
-                                                        <a key={i} href={shop.lat && shop.lng ? `https://www.google.com/maps/search/?api=1&query=${shop.lat},${shop.lng}` : '#'} target="_blank" rel="noopener noreferrer" className="bg-white rounded-xl p-2.5 flex gap-3 shadow-sm border border-purple-50 mb-2 hover:shadow-md hover:border-primary/30 cursor-pointer transition-all no-underline text-inherit block">
+                                                        <Link key={i} to={`/shop/${shop.id}`} className="bg-white rounded-xl p-2.5 flex gap-3 shadow-sm border border-purple-50 mb-2 hover:shadow-md hover:border-primary/30 cursor-pointer transition-all no-underline text-inherit block">
                                                             <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden shrink-0">
                                                                 {i < 2 && <div className="absolute top-0 left-0 bg-pink-500 text-white text-[9px] font-bold px-1.5 py-0.5 z-10 rounded-br-lg">HOT</div>}
                                                                 {i === 2 && <div className="absolute top-0 left-0 bg-pink-400 text-white text-[9px] font-bold px-1.5 py-0.5 z-10 rounded-br-lg">NEW</div>}
@@ -134,7 +151,7 @@ export default function ChatPage() {
                                                                     {shop.address && <span className="text-[9px] text-primary truncate">📍 {shop.address}</span>}
                                                                 </div>
                                                             </div>
-                                                        </a>
+                                                        </Link>
                                                     );
                                                 }) : <p className="text-xs text-text-muted">조건에 맞는 샵을 찾지 못했어요.</p>}
 
@@ -158,7 +175,7 @@ export default function ChatPage() {
                                                                         <Popup className="text-xs">
                                                                             <strong>{shop.name}</strong><br />
                                                                             <span className="text-gray-500">{shop.category}</span><br />
-                                                                            <a href={`https://www.google.com/maps/search/?api=1&query=${shop.lat},${shop.lng}`} target="_blank" rel="noopener noreferrer" className="text-primary mt-1 inline-block font-bold">지도에서 보기</a>
+                                                                            <Link to={`/shop/${shop.id}`} className="text-primary mt-1 inline-block font-bold">상세 보기</Link>
                                                                         </Popup>
                                                                     </Marker>
                                                                 );
@@ -170,6 +187,31 @@ export default function ChatPage() {
                                         );
                                     } else {
                                         return <div key={toolCallId} className="text-xs text-text-muted animate-pulse">DB 검색 중... 🔍</div>;
+                                    }
+                                } else if (toolInvocation.toolName === 'confirm_booking') {
+                                    if ('result' in toolInvocation) {
+                                        const res = toolInvocation.result;
+                                        return (
+                                            <div key={toolCallId} className="mt-2 bg-pink-50 p-3 rounded-xl border border-pink-100 shadow-sm w-full max-w-[240px]">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <div className="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center">
+                                                        <Calendar className="w-4 h-4 text-pink-500" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-bold text-sm text-pink-900">예약 접수 완료 ✨</p>
+                                                        <p className="text-[10px] text-pink-700">{res.booking_id}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="bg-white p-2.5 rounded-lg text-xs space-y-1.5 mt-2">
+                                                    <p className="flex justify-between items-center"><span className="text-gray-500">샵</span> <strong className="text-right truncate max-w-[120px]">{res.shop_name}</strong></p>
+                                                    <p className="flex justify-between items-center"><span className="text-gray-500">날짜</span> <strong>{res.date}</strong></p>
+                                                    <p className="flex justify-between items-center"><span className="text-gray-500">시간</span> <strong>{res.time}</strong></p>
+                                                </div>
+                                                <button onClick={() => navigate('/mypage')} className="w-full mt-3 bg-pink-500 text-white rounded-lg py-2 text-xs font-bold hover:bg-pink-600 transition-colors">예약 내역 확인하기</button>
+                                            </div>
+                                        );
+                                    } else {
+                                        return <div key={toolCallId} className="text-xs text-text-muted animate-pulse">예약 진행 중... ⏱️</div>;
                                     }
                                 }
                                 return null;

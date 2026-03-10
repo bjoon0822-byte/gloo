@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Sparkles, MessageCircle, Globe, MapPin, ArrowRight, Star, Heart, Calendar, ChevronRight, Search, User, Play, Send, Palette, Stethoscope, Scissors, Zap, Shield, Clock, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { Link } from 'react-router-dom';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -444,7 +445,7 @@ export default function HomePage() {
                                     const discountRate = treatment ? Math.round((originalPrice - treatment.price) / originalPrice * 100) : 0;
 
                                     return (
-                                      <a key={i} href={shop.lat && shop.lng ? `https://www.google.com/maps/search/?api=1&query=${shop.lat},${shop.lng}` : '#'} target="_blank" rel="noopener noreferrer" className="bg-white rounded-xl p-2.5 flex gap-3 shadow-sm border border-purple-50 mb-2 hover:shadow-md hover:border-primary/30 cursor-pointer transition-all no-underline text-inherit block">
+                                      <Link key={i} to={`/shop/${shop.id}`} className="bg-white rounded-xl p-2.5 flex gap-3 shadow-sm border border-purple-50 mb-2 hover:shadow-md hover:border-primary/30 cursor-pointer transition-all no-underline text-inherit block">
                                         <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden shrink-0">
                                           {i === 0 && <div className="absolute top-0 left-0 bg-pink-500 text-white text-[9px] font-bold px-1.5 py-0.5 z-10 rounded-br-lg">HOT</div>}
                                           {i === 1 && <div className="absolute top-0 left-0 bg-pink-500 text-white text-[9px] font-bold px-1.5 py-0.5 z-10 rounded-br-lg">HOT</div>}
@@ -487,7 +488,7 @@ export default function HomePage() {
                                             )}
                                           </div>
                                         </div>
-                                      </a>
+                                      </Link>
                                     );
                                   }) : <p className="text-xs text-text-muted">조건에 맞는 샵을 찾지 못했어요.</p>}
 
@@ -511,7 +512,7 @@ export default function HomePage() {
                                               <Popup className="text-xs">
                                                 <strong>{shop.name}</strong><br />
                                                 <span className="text-gray-500">{shop.category}</span><br />
-                                                <a href={`https://www.google.com/maps/search/?api=1&query=${shop.lat},${shop.lng}`} target="_blank" rel="noopener noreferrer" className="text-primary mt-1 inline-block font-bold">지도에서 보기</a>
+                                                <Link to={`/shop/${shop.id}`} className="text-primary mt-1 inline-block font-bold">상세 보기</Link>
                                               </Popup>
                                             </Marker>
                                           );
@@ -741,7 +742,7 @@ export default function HomePage() {
                                     const discountRate = treatment ? Math.round((originalPrice - treatment.price) / originalPrice * 100) : 0;
 
                                     return (
-                                      <a key={i} href={shop.lat && shop.lng ? `https://www.google.com/maps/search/?api=1&query=${shop.lat},${shop.lng}` : '#'} target="_blank" rel="noopener noreferrer" className="bg-white rounded-xl p-2.5 flex gap-3 shadow-sm border border-purple-50 mb-2 hover:shadow-md hover:border-primary/30 cursor-pointer transition-all no-underline text-inherit block">
+                                      <Link key={i} to={`/shop/${shop.id}`} className="bg-white rounded-xl p-2.5 flex gap-3 shadow-sm border border-purple-50 mb-2 hover:shadow-md hover:border-primary/30 cursor-pointer transition-all no-underline text-inherit block">
                                         <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden shrink-0">
                                           {i === 0 && <div className="absolute top-0 left-0 bg-pink-500 text-white text-[9px] font-bold px-1.5 py-0.5 z-10 rounded-br-lg">HOT</div>}
                                           {i === 1 && <div className="absolute top-0 left-0 bg-pink-500 text-white text-[9px] font-bold px-1.5 py-0.5 z-10 rounded-br-lg">HOT</div>}
@@ -784,7 +785,7 @@ export default function HomePage() {
                                             )}
                                           </div>
                                         </div>
-                                      </a>
+                                      </Link>
                                     );
                                   }) : <p className="text-xs text-text-muted">조건에 맞는 샵을 찾지 못했어요.</p>}
 
@@ -808,7 +809,7 @@ export default function HomePage() {
                                               <Popup className="text-xs">
                                                 <strong>{shop.name}</strong><br />
                                                 <span className="text-gray-500">{shop.category}</span><br />
-                                                <a href={`https://www.google.com/maps/search/?api=1&query=${shop.lat},${shop.lng}`} target="_blank" rel="noopener noreferrer" className="text-primary mt-1 inline-block font-bold">지도에서 보기</a>
+                                                <Link to={`/shop/${shop.id}`} className="text-primary mt-1 inline-block font-bold">상세 보기</Link>
                                               </Popup>
                                             </Marker>
                                           );

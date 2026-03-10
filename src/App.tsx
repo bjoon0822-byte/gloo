@@ -7,6 +7,7 @@ const HomePage = lazy(() => import('./pages/HomePage'));
 const ChatPage = lazy(() => import('./pages/ChatPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
 const MyPage = lazy(() => import('./pages/MyPage'));
+const ShopDetailPage = lazy(() => import('./pages/ShopDetailPage'));
 
 // 로딩 스피너
 function LoadingFallback() {
@@ -20,8 +21,8 @@ function LoadingFallback() {
 // 레이아웃 — 탭바를 표시할 페이지를 제어
 function AppLayout() {
   const location = useLocation();
-  // 채팅 페이지에서는 BottomTabBar 숨김 (풀스크린 채팅 경험)
-  const hideTabBar = location.pathname === '/chat';
+  // 채팅 페이지와 샵 상세 페이지에서는 BottomTabBar 숨김 (풀스크린/커스텀 탭바 경험)
+  const hideTabBar = location.pathname.startsWith('/chat') || location.pathname.startsWith('/shop/');
 
   return (
     <>
@@ -30,6 +31,7 @@ function AppLayout() {
           <Route path="/" element={<HomePage />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/shop/:id" element={<ShopDetailPage />} />
           <Route path="/mypage" element={<MyPage />} />
         </Routes>
       </Suspense>

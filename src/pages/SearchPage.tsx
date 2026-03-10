@@ -1,5 +1,6 @@
 import { Search, MapPin, Star, X, Sparkles } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
 /**
@@ -232,16 +233,11 @@ export default function SearchPage() {
                             const originalPrice = treatment ? Math.round(treatment.price * 1.3) : 0;
                             const discountRate = treatment ? Math.round((originalPrice - treatment.price) / originalPrice * 100) : 0;
 
-                            const mapUrl = shop.lat && shop.lng
-                                ? `https://www.google.com/maps/search/?api=1&query=${shop.lat},${shop.lng}&query_place_id=${encodeURIComponent(shop.name)}`
-                                : `https://www.google.com/maps/search/${encodeURIComponent(shop.name)}`;
 
                             return (
-                                <a
+                                <Link
                                     key={shop.id}
-                                    href={mapUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                    to={`/shop/${shop.id}`}
                                     className="flex gap-3 p-3 bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:border-primary/30 transition-all cursor-pointer no-underline text-inherit block"
                                 >
                                     <div className="relative w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-primary/5">
@@ -285,7 +281,7 @@ export default function SearchPage() {
                                             <span className="text-[9px] text-text-muted mt-0.5">🕒 {shop.operating_hours}</span>
                                         )}
                                     </div>
-                                </a>
+                                </Link>
                             );
                         })}
                     </div>

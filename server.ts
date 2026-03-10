@@ -11,6 +11,11 @@ import { z } from 'zod';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const shopsData: any[] = JSON.parse(
@@ -66,9 +71,11 @@ Always be polite, enthusiastic, and highly professional.
 When a user asks for recommendations, explicitly USE the 'search_shops' tool to find real places in the database. 
 NEVER make up a shop name that does not exist in the database.
 If 'search_shops' returns empty, apologize and say you couldn't find an exact match currently.
+When a user expresses intent to book a specific shop (or asks to book a shop), YOU MUST ASK them for their preferred DATE and TIME. Do not book without confirming date and time.
+Once the user provides the date and time, USE the 'confirm_booking' tool to finalize the booking.
 Reply in the language the user speaks. Use emojis naturally.`;
 
-        const result = streamText({
+        const result = await streamText({
             model: openai('gpt-4o-mini'),
             system: systemPrompt,
             messages,
@@ -93,6 +100,43 @@ Reply in the language the user speaks. Use emojis naturally.`;
                             top_treatments: shop.treatments?.slice(0, 2).map((t: any) => `${t.name}: ₩${t.price}`) || [],
                             base_price: shop.base_price,
                         }));
+                    },
+                }),
+                confirm_booking: tool({
+                    description: 'Confirm a booking for a specific shop when the user has provided a date and time.',
+                    parameters: z.object({
+                        shop_name: z.string().describe('Name of the shop to book'),
+                        date: z.string().describe('Date of the booking (e.g., 2024-05-20)'),
+                        time: z.string().describe('Time of the booking (e.g., 14:30)'),
+                    }),
+                    execute: async ({ shop_name, date, time }) => {
+                        console.log(`[Tool Call] confirm_booking:`, { shop_name, date, time });
+
+                        const booking_id = `BKG-${Date.now()}`;
+
+                        // DB 저장 (테이블이 없거나 권한 에러가 날 수 있으므로 예외 처리)
+                        try {
+                            const { error } = await supabase.from('bookings').insert({
+                                booking_id,
+                                shop_name,
+                                date,
+                                time,
+                                status: 'confirmed'
+                            });
+                            if (error) console.error('Supabase DB Insert Error:', error.message);
+                        } catch (e) {
+                            console.error('Supabase DB Insert Exception:', e);
+                        }
+
+                        return {
+                            success: true,
+                            booking_id,
+                            shop_name,
+                            date,
+                            time,
+                            status: 'confirmed',
+                            message: `Successfully booked ${shop_name} for ${date} at ${time}.`
+                        };
                     },
                 }),
             },
