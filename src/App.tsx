@@ -8,6 +8,8 @@ const ChatPage = lazy(() => import('./pages/ChatPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
 const MyPage = lazy(() => import('./pages/MyPage'));
 const ShopDetailPage = lazy(() => import('./pages/ShopDetailPage'));
+const BookingsPage = lazy(() => import('./pages/BookingsPage'));
+const WishlistPage = lazy(() => import('./pages/WishlistPage'));
 
 // 로딩 스피너
 function LoadingFallback() {
@@ -33,6 +35,8 @@ function AppLayout() {
           <Route path="/search" element={<SearchPage />} />
           <Route path="/shop/:id" element={<ShopDetailPage />} />
           <Route path="/mypage" element={<MyPage />} />
+          <Route path="/bookings" element={<BookingsPage />} />
+          <Route path="/wishlists" element={<WishlistPage />} />
         </Routes>
       </Suspense>
       {!hideTabBar && <BottomTabBar />}

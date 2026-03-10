@@ -4,6 +4,7 @@ import { ArrowLeft, Star, Heart, MapPin, Clock, Phone, Copy, Share, MessageCircl
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { supabase } from '../lib/supabase';
+import type { Session } from '@supabase/supabase-js';
 import type { Shop } from '../types';
 
 export default function ShopDetailPage() {
@@ -12,6 +13,14 @@ export default function ShopDetailPage() {
     const [shop, setShop] = useState<Shop | null>(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'treatments' | 'info' | 'reviews'>('treatments');
+    const [session, setSession] = useState<Session | null>(null);
+    const [isLiked, setIsLiked] = useState(false);
+
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setSession(session);
+        });
+    }, []);
 
     // Simulate fetching shop data based on ID
     useEffect(() => {
@@ -29,6 +38,18 @@ export default function ShopDetailPage() {
                 }
                 setLoading(false);
 
+                // Fetch wishlist status if user is logged in
+                const { data: sessionData } = await supabase.auth.getSession();
+                if (sessionData.session && data) {
+                    const { data: wishData } = await supabase.from('wishlists')
+                        .select('id')
+                        .eq('user_id', sessionData.session.user.id)
+                        .eq('shop_id', data.id)
+                        .maybeSingle();
+
+                    if (wishData) setIsLiked(true);
+                }
+
             } catch (err) {
                 console.error(err);
                 setLoading(false);
@@ -41,6 +62,33 @@ export default function ShopDetailPage() {
         if (shop?.address) {
             navigator.clipboard.writeText(shop.address);
             alert('주소가 복사되었습니다.');
+        }
+    };
+
+    const toggleWishlist = async () => {
+        if (!session) {
+            alert('로그인이 필요한 서비스입니다.');
+            return;
+        }
+        if (!shop) return;
+
+        try {
+            if (isLiked) {
+                setIsLiked(false);
+                await supabase.from('wishlists').delete()
+                    .eq('user_id', session.user.id)
+                    .eq('shop_id', shop.id);
+            } else {
+                setIsLiked(true);
+                await supabase.from('wishlists').insert({
+                    user_id: session.user.id,
+                    shop_id: shop.id
+                });
+            }
+        } catch (error) {
+            console.error('Wishlist error:', error);
+            // Revert state on error
+            setIsLiked(!isLiked);
         }
     };
 
@@ -75,8 +123,11 @@ export default function ShopDetailPage() {
                     <ArrowLeft className="w-5 h-5 text-gray-800" />
                 </button>
                 <div className="flex gap-1 border border-gray-100 rounded-full p-1 bg-white">
-                    <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-pink-50 text-gray-400 hover:text-pink-500 transition-colors cursor-pointer">
-                        <Heart className="w-4 h-4" />
+                    <button
+                        onClick={toggleWishlist}
+                        className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-pink-50 text-gray-400 hover:text-pink-500 transition-colors cursor-pointer"
+                    >
+                        <Heart className={`w-4 h-4 ${isLiked ? 'fill-primary text-primary' : ''}`} />
                     </button>
                     <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-50 text-gray-400 hover:text-gray-700 transition-colors cursor-pointer">
                         <Share className="w-4 h-4" />
