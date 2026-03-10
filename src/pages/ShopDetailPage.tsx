@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Star, Heart, MapPin, Clock, Phone, Copy, Share, MessageCircle } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import { supabase } from '../lib/supabase';
 import type { Shop } from '../types';
 
 export default function ShopDetailPage() {
@@ -17,38 +18,16 @@ export default function ShopDetailPage() {
         const fetchShop = async () => {
             try {
                 // In a real app, you'd fetch from your API/Supabase:
-                // const { data } = await supabase.from('shops').select('*').eq('id', id).single();
+                const { data, error } = await supabase.from('shops').select('*').eq('id', id).single();
 
-                // We'll simulate fetching the data locally from JSON or a mock endpoint for now.
-                // Since there is no /api/shops we will just mock a rich object based on the id
-                const mockShop: Shop = {
-                    id: id || 'shop_1',
-                    name: '글루 뷰티 라운지',
-                    category: '피부과',
-                    region: '강남구',
-                    city: 'Seoul',
-                    rating: 4.8,
-                    review_count: 124,
-                    created_at: new Date().toISOString(),
-                    lat: 37.4979,
-                    lng: 127.0276,
-                    address: '서울 강남구 테헤란로 123',
-                    operating_hours: '10:00 - 20:00',
-                    languages: ['Korean', 'English'],
-                    base_price: '50000',
-                    image_url: `https://picsum.photos/seed/${id}/600/400`,
-                    treatments: [
-                        { name: '여드름 올인원 (압출+스케일링)', price: 79000 },
-                        { name: '리프팅 레이저 (300샷)', price: 150000 },
-                        { name: '수분 폭탄 아쿠아필', price: 55000 },
-                    ]
-                };
+                if (error) throw error;
 
-                // Add a small delay for realism
-                setTimeout(() => {
-                    setShop(mockShop);
-                    setLoading(false);
-                }, 400);
+                if (data) {
+                    setShop(data as Shop);
+                } else {
+                    setShop(null);
+                }
+                setLoading(false);
 
             } catch (err) {
                 console.error(err);

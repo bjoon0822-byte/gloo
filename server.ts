@@ -17,43 +17,49 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const shopsData: any[] = JSON.parse(
-    readFileSync(join(__dirname, 'src', 'data', 'shops.json'), 'utf-8')
-);
-
-// 샵 검색 로직 (shopApi.searchShops 미러링)
-function searchShops(filters: {
+// 샵 검색 로직 (Supabase DB에서조회)
+async function searchShops(filters: {
     query?: string;
     category?: string;
     region?: string;
     maxPrice?: number;
-}): any[] {
-    let results = [...shopsData];
+}) {
+    let q = supabase.from('shops').select('*');
+
+    if (filters.category) {
+        q = q.eq('category', filters.category);
+    }
+
+    if (filters.region) {
+        // Simple exact match or ilike for region
+        q = q.ilike('region', `%${filters.region}%`);
+    }
 
     if (filters.query) {
-        const q = filters.query.toLowerCase();
-        results = results.filter((s) =>
-            s.name.toLowerCase().includes(q) ||
-            s.treatments?.some((t: any) => t.name.toLowerCase().includes(q))
-        );
+        // Search by shop name
+        q = q.ilike('name', `%${filters.query}%`);
     }
-    if (filters.category) {
-        results = results.filter((s) => s.category === filters.category);
+
+    // Since we store treatments as JSONB we can't easily filter maxPrice in simple Supabase queries without RPC or complex GIN operators.
+    // For now we will fetch then filter maxPrice locally, or just order by rating and let GPT understand.
+    q = q.order('rating', { ascending: false }).limit(20);
+
+    const { data, error } = await q;
+
+    if (error) {
+        console.error('Supabase fetch error:', error);
+        return [];
     }
-    if (filters.region) {
-        const r = filters.region.toLowerCase();
-        results = results.filter((s) =>
-            s.region?.toLowerCase().includes(r) ||
-            s.address?.toLowerCase().includes(r)
-        );
-    }
+
+    let results = data || [];
+
     if (filters.maxPrice) {
-        results = results.filter((s) =>
+        // Locally filter JSONB array of treatments for price
+        results = results.filter((s: any) =>
             s.treatments?.some((t: any) => t.price <= filters.maxPrice!)
         );
     }
-    results.sort((a, b) => b.rating - a.rating);
+
     return results;
 }
 
@@ -90,7 +96,7 @@ Reply in the language the user speaks. Use emojis naturally.`;
                     }),
                     execute: async ({ region, category, max_price, query }: { region?: string; category?: string; max_price?: number; query?: string }) => {
                         console.log(`[Tool Call] search_shops:`, { region, category, max_price, query });
-                        const results = searchShops({ region, category, maxPrice: max_price, query });
+                        const results = await searchShops({ region, category, maxPrice: max_price, query });
                         return results.slice(0, 3).map((shop) => ({
                             name: shop.name,
                             region: shop.region,
