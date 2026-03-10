@@ -1,6 +1,17 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Sparkles, MessageCircle, Globe, MapPin, ArrowRight, Star, Heart, Calendar, ChevronRight, Search, User, Play, Send, Palette, Stethoscope, Scissors, Zap, Shield, Clock, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix Leaflet's default icon path issues in React
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 /* ── 챗봇 메시지 타입 ── */
 interface ChatMessage {
@@ -73,7 +84,15 @@ function App() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const heroScrollRef = useRef<HTMLDivElement>(null);
+  const mainScrollRef = useRef<HTMLDivElement>(null);
+  const [toast, setToast] = useState<string | null>(null);
+
+  // 토스트 메시지 헬퍼
+  const showToast = useCallback((msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
+  }, []);
 
   // input change handler
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,14 +100,14 @@ function App() {
   }, []);
 
   // 채팅 전송 handler
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent, overrideInput?: string) => {
     e.preventDefault();
-    const trimmed = input.trim();
+    const trimmed = (overrideInput ?? input).trim();
     if (!trimmed || isLoading) return;
 
     const userMsg: ChatMessage = { id: Date.now().toString(), role: 'user', content: trimmed };
     setMessages(prev => [...prev, userMsg]);
-    setInput('');
+    if (overrideInput === undefined) setInput('');
     setIsLoading(true);
 
     try {
@@ -100,35 +119,93 @@ function App() {
 
       if (!res.ok) throw new Error(`API 응답 오류: ${res.status}`);
 
-      // 스트리밍 텍스트 파싱
+      // 스트리밍 텍스트 파싱 (tool call/result 포함)
       const reader = res.body?.getReader();
       const decoder = new TextDecoder();
       let fullText = '';
+      let hasContent = false;
+      const toolInvocationsMap: Record<string, any> = {}; // toolCallId → invocation object
       const assistantId = (Date.now() + 1).toString();
-      setMessages(prev => [...prev, { id: assistantId, role: 'assistant', content: '' }]);
+      setMessages(prev => [...prev, { id: assistantId, role: 'assistant', content: '', toolInvocations: [] }]);
+
+      // 헬퍼: 현재 toolInvocations 상태를 메시지에 반영 + 실시간 스크롤
+      const updateMsg = (text: string) => {
+        const invocations = Object.values(toolInvocationsMap);
+        setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: text, toolInvocations: invocations.length > 0 ? invocations : undefined } : m));
+        // 스트리밍 중 실시간 자동 스크롤
+        setTimeout(() => {
+          if (heroScrollRef.current) {
+            heroScrollRef.current.scrollTop = heroScrollRef.current.scrollHeight;
+          }
+          if (mainScrollRef.current) {
+            mainScrollRef.current.scrollTop = mainScrollRef.current.scrollHeight;
+          }
+        }, 50);
+      };
 
       if (reader) {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
           const chunk = decoder.decode(value, { stream: true });
-          // Vercel AI SDK 스트리밍 프로토콜 파싱
           const lines = chunk.split('\n').filter(Boolean);
+
           for (const line of lines) {
-            // 텍스트 청크: "0:" prefix
+            // Text chunk (0:)
             if (line.startsWith('0:')) {
               try {
                 const text = JSON.parse(line.slice(2));
                 fullText += text;
-                setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: fullText } : m));
-              } catch { /* non-JSON chunk, skip */ }
+                hasContent = true;
+                updateMsg(fullText);
+              } catch { /* skip */ }
+            }
+            // Tool call (9:) — AI가 도구를 호출할 때
+            else if (line.startsWith('9:')) {
+              hasContent = true;
+              try {
+                const toolCall = JSON.parse(line.slice(2));
+                const toolCallId = toolCall.toolCallId;
+                toolInvocationsMap[toolCallId] = {
+                  toolCallId,
+                  toolName: toolCall.toolName,
+                  args: toolCall.args,
+                  state: 'call',
+                };
+                updateMsg(fullText);
+              } catch { /* skip */ }
+            }
+            // Tool result (a:) — 도구 실행 결과가 돌아올 때
+            else if (line.startsWith('a:')) {
+              hasContent = true;
+              try {
+                const toolResult = JSON.parse(line.slice(2));
+                const toolCallId = toolResult.toolCallId;
+                if (toolInvocationsMap[toolCallId]) {
+                  toolInvocationsMap[toolCallId] = {
+                    ...toolInvocationsMap[toolCallId],
+                    state: 'result',
+                    result: toolResult.result,
+                  };
+                } else {
+                  // 9: 없이 a:만 온 경우 대비
+                  toolInvocationsMap[toolCallId] = {
+                    toolCallId,
+                    toolName: 'search_shops',
+                    state: 'result',
+                    result: toolResult.result,
+                  };
+                }
+                updateMsg(fullText);
+              } catch { /* skip */ }
             }
           }
         }
       }
 
-      // 텍스트가 비어있다면 fallback
-      if (!fullText) {
+      // If no text but tools were used, the AI will usually follow up with text. 
+      // If truly empty, show fallback.
+      if (!hasContent && !fullText) {
         setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: '죄송합니다. 응답을 처리하지 못했습니다. 다시 시도해주세요.' } : m));
       }
     } catch (err) {
@@ -144,10 +221,16 @@ function App() {
     }
   }, [input, isLoading, messages]);
 
-  // Auto-scroll to bottom of chat (only when there are messages to avoid jump on mount)
+  // Auto-scroll chat containers without jumping the main window
   useEffect(() => {
+    const scrollToBottom = (ref: React.RefObject<HTMLDivElement | null>) => {
+      if (ref.current) {
+        ref.current.scrollTop = ref.current.scrollHeight;
+      }
+    };
     if (messages.length > 0) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      scrollToBottom(heroScrollRef);
+      scrollToBottom(mainScrollRef);
     }
   }, [messages]);
 
@@ -199,13 +282,26 @@ function App() {
           HERO — 2-Column (좌측 타이틀, 우측 대형 챗봇)
       ═══════════════════════════════════════ */}
       <section className="relative w-full h-screen overflow-hidden flex items-center pt-16 mb-[-2px]">
-        {/* Spline 3D 배경 - 아래쪽까지 충분히 늘려서 자연스럯게 쟘림 */}
+        {/* Spline 3D 배경 + WebGL 미지원 환경용 그라데이션 Fallback */}
         <div className="absolute inset-0 w-full h-full z-0">
+          {/* Fallback: 항상 보이는 그라데이션 배경 (3D 로딩 전 또는 WebGL 미지원 시) */}
+          <div
+            className="absolute inset-0 w-full h-full"
+            style={{
+              background: 'linear-gradient(135deg, #f3eeff 0%, #e8dff5 25%, #f0e6ff 50%, #ddd6fe 75%, #ede9fe 100%)',
+            }}
+          />
+          {/* 장식적 보라색 원형 블러 효과 (3D 대체) */}
+          <div className="absolute top-[20%] right-[15%] w-[500px] h-[500px] bg-gradient-to-br from-purple-300/40 to-fuchsia-200/30 rounded-full blur-[120px]" />
+          <div className="absolute bottom-[10%] left-[20%] w-[400px] h-[400px] bg-gradient-to-tr from-indigo-200/30 to-purple-300/20 rounded-full blur-[100px]" />
+
+          {/* Spline 3D iframe (WebGL 지원 브라우저에서만 로드됨) */}
           <iframe
             src="https://my.spline.design/blendtoollightcolor-xF3dhVj2fdhSiCZtChbuYsLZ/"
             frameBorder="0"
             className="w-full absolute top-0 left-0"
             title="GLOO 3D Visual"
+            loading="lazy"
             style={{
               pointerEvents: 'auto',
               border: 'none',
@@ -215,6 +311,7 @@ function App() {
             }}
           />
         </div>
+
 
         {/* 텍스트/UI 가독성을 위한 배경 그라데이션 커튼 */}
         <div className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-r from-background/90 via-background/60 to-transparent"></div>
@@ -319,58 +416,165 @@ function App() {
                 </div>
 
                 {/* 챗봇 대화 내용 */}
-                <div className="p-6 space-y-4 max-h-[320px] overflow-y-auto hide-scrollbar bg-white/10">
-
-                  {/* 사용자 메시지 */}
-                  <div className="flex justify-end">
-                    <div className="btn-primary text-sm px-4 py-3 rounded-2xl rounded-tr-sm max-w-[80%] shadow-md">
-                      강남에서 피부 시술 추천해줘 💆‍♀️<br />예산은 30만원 정도야.
-                    </div>
-                  </div>
-
-                  {/* AI 응답 */}
-                  <div className="flex justify-start">
-                    <div className="bg-white/90 text-text text-sm px-4 py-3 rounded-2xl rounded-tl-sm max-w-[90%] shadow-lg border border-white/50">
-                      <p className="mb-2.5 font-bold text-primary-dark">조건에 맞는 클리닉 3곳이에요! ✨</p>
-                      <div className="space-y-2">
-                        {[
-                          { name: '루미스킨 클리닉', price: '₩280,000', star: '4.9', tag: '페이셜' },
-                          { name: '하나피부과', price: '₩250,000', star: '4.8', tag: '보톡스' },
-                          { name: '서울글로우', price: '₩320,000', star: '4.9', tag: '레이저' },
-                        ].map((c, i) => (
-                          <div key={i} className="bg-background-light rounded-xl px-3 py-2 flex items-center justify-between shadow-sm border border-purple-50 group hover:border-primary/30 transition-colors cursor-pointer">
-                            <div>
-                              <span className="font-bold text-xs">{c.name}</span>
-                              <div className="flex items-center gap-1 mt-0.5">
-                                <span className="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-[9px] font-bold">{c.tag}</span>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <span className="text-primary font-bold text-sm block">{c.price}</span>
-                              <span className="text-amber-500 flex items-center justify-end gap-0.5 text-[10px] font-bold"><Star className="w-2.5 h-2.5 fill-amber-400" />{c.star}</span>
-                            </div>
-                          </div>
-                        ))}
+                <div ref={heroScrollRef} className="p-6 space-y-4 h-[450px] lg:h-[500px] overflow-y-auto hide-scrollbar bg-white/10 flex flex-col">
+                  {messages.length === 0 && (
+                    <div className="flex justify-start mt-auto">
+                      <div className="bg-white/90 text-text text-sm px-4 py-3 rounded-2xl rounded-tl-sm max-w-[90%] shadow-lg border border-white/50 whitespace-pre-wrap">
+                        안녕하세요! GLOO AI 컨시어지입니다. 원하시는 뷰티 시술이나 지역을 말씀해 주시면, 딱 맞는 뷰티샵을 찾아 찾아드릴게요 ✨
                       </div>
                     </div>
-                  </div>
+                  )}
 
-                  {/* 사용자 메시지 2 */}
-                  <div className="flex justify-end">
-                    <div className="btn-primary text-sm px-4 py-3 rounded-2xl rounded-tr-sm shadow-md">
-                      루미스킨 금요일 피부관리 예약해줘! 🙏
+                  {messages.map((m: any) => (
+                    <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`text-sm px-4 py-3 rounded-2xl max-w-[90%] shadow-md ${m.role === 'user'
+                        ? 'btn-primary rounded-tr-sm text-white'
+                        : 'bg-white/90 text-text rounded-tl-sm border border-white/50 whitespace-pre-wrap'
+                        }`}>
+                        {m.toolInvocations?.map((toolInvocation: any) => {
+                          const toolCallId = toolInvocation.toolCallId;
+                          if (toolInvocation.toolName === 'search_shops') {
+                            if ('result' in toolInvocation) {
+                              const results = toolInvocation.result;
+                              return (
+                                <div key={toolCallId} className="mt-2 space-y-2 w-full">
+                                  {results.length > 0 ? results.map((shop: any, i: number) => {
+                                    const treatment = shop.treatments?.[0];
+                                    const originalPrice = treatment ? Math.round(treatment.price * 1.3) : 0;
+                                    const discountRate = treatment ? Math.round((originalPrice - treatment.price) / originalPrice * 100) : 0;
+
+                                    return (
+                                      <a key={i} href={shop.lat && shop.lng ? `https://map.kakao.com/link/map/${encodeURIComponent(shop.name)},${shop.lat},${shop.lng}` : '#'} target="_blank" rel="noopener noreferrer" className="bg-white rounded-xl p-2.5 flex gap-3 shadow-sm border border-purple-50 mb-2 hover:shadow-md hover:border-primary/30 cursor-pointer transition-all no-underline text-inherit block">
+                                        <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden shrink-0">
+                                          {i === 0 && <div className="absolute top-0 left-0 bg-pink-500 text-white text-[9px] font-bold px-1.5 py-0.5 z-10 rounded-br-lg">HOT</div>}
+                                          {i === 1 && <div className="absolute top-0 left-0 bg-pink-500 text-white text-[9px] font-bold px-1.5 py-0.5 z-10 rounded-br-lg">HOT</div>}
+                                          {i === 2 && <div className="absolute top-0 left-0 bg-pink-400 text-white text-[9px] font-bold px-1.5 py-0.5 z-10 rounded-br-lg">NEW</div>}
+                                          {shop.image_url ? (
+                                            <img
+                                              src={shop.image_url}
+                                              alt={shop.name}
+                                              className="w-full h-full object-cover"
+                                              loading="lazy"
+                                              onError={(e) => { e.currentTarget.src = `https://picsum.photos/seed/${shop.id || Math.random()}/200/200`; }}
+                                            />
+                                          ) : (
+                                            <div className="w-full h-full bg-primary/10 flex items-center justify-center"><Sparkles className="w-6 h-6 text-primary/40" /></div>
+                                          )}
+                                        </div>
+                                        <div className="flex-1 flex flex-col justify-center min-w-0 py-0.5">
+                                          <h4 className="font-bold text-sm text-text mb-0.5 truncate">{treatment?.name || shop.name}</h4>
+                                          <p className="text-[10px] text-text-muted mb-1 truncate">
+                                            #{shop.category} {shop.treatments?.slice(0, 3).map((t: any) => `#${t.name.split(' ')[0]}`).join(' ')}
+                                          </p>
+                                          <div className="flex items-center gap-1 text-[10px] text-text-muted mb-1.5 truncate">
+                                            <span>{shop.region}</span>
+                                            <span className="w-px h-2 rounded-full bg-gray-300"></span>
+                                            <span className="truncate">{shop.name}</span>
+                                          </div>
+                                          {treatment && (
+                                            <div className="flex items-center gap-1.5 mt-auto flex-wrap mb-1">
+                                              <span className="font-extrabold text-text text-sm">{treatment.price.toLocaleString()}원</span>
+                                              <span className="font-bold text-pink-500 text-[10px]">{discountRate}%</span>
+                                              <span className="text-text-muted text-[10px] line-through decoration-gray-300">{originalPrice.toLocaleString()}원</span>
+                                            </div>
+                                          )}
+                                          <div className="flex flex-col gap-0.5 mt-auto">
+                                            {shop.operating_hours && (
+                                              <span className="text-[9px] text-text-muted">🕒 {shop.operating_hours}</span>
+                                            )}
+                                            {shop.address && (
+                                              <span className="text-[9px] text-primary truncate">📍 {shop.address} <span className="text-gray-400">· 클릭하여 지도 보기</span></span>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </a>
+                                    );
+                                  }) : <p className="text-xs text-text-muted">조건에 맞는 샵을 찾지 못했어요.</p>}
+
+                                  {/* Map UI for Hero Chat */}
+                                  {results.length > 0 && results[0].lat && results[0].lng && (
+                                    <div className="w-full h-[200px] sm:h-[250px] rounded-2xl overflow-hidden mt-3 shadow-md border border-white/40">
+                                      <MapContainer
+                                        center={[results[0].lat, results[0].lng] as [number, number]}
+                                        zoom={14}
+                                        style={{ height: '100%', width: '100%' }}
+                                        scrollWheelZoom={false}
+                                      >
+                                        <TileLayer
+                                          url="https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png"
+                                          attribution='&copy; <a href="https://carto.com/">CartoDB</a>'
+                                        />
+                                        {results.map((shop: any, idx: number) => {
+                                          if (!shop.lat || !shop.lng) return null;
+                                          return (
+                                            <Marker key={`marker-hero-${idx}`} position={[shop.lat, shop.lng] as [number, number]}>
+                                              <Popup className="text-xs">
+                                                <strong>{shop.name}</strong><br />
+                                                <span className="text-gray-500">{shop.category}</span><br />
+                                                <a href={`https://map.kakao.com/link/map/${encodeURIComponent(shop.name)},${shop.lat},${shop.lng}`} target="_blank" rel="noopener noreferrer" className="text-primary mt-1 inline-block font-bold">카카오맵 열기</a>
+                                              </Popup>
+                                            </Marker>
+                                          );
+                                        })}
+                                      </MapContainer>
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            } else {
+                              return <div key={toolCallId} className="text-xs text-text-muted animate-pulse">DB 검색 중... 🔍</div>;
+                            }
+                          }
+                          return null;
+                        })}
+                        {m.content}
+                      </div>
                     </div>
-                  </div>
+                  ))}
+
+                  {/* Quick Replies for Time/Schedule Selection (Hero) */}
+                  {messages.length > 0 &&
+                    messages[messages.length - 1].role === 'assistant' &&
+                    (messages[messages.length - 1].content.includes('시간') || messages[messages.length - 1].content.includes('일정') || messages[messages.length - 1].content.includes('예약')) && (
+                      <div className="flex flex-wrap gap-1.5 mt-3 px-2 pb-2">
+                        {['이번 주 주말', '다음 주 평일', '오전 10시', '오후 2시', '오후 5시'].map((t) => (
+                          <button
+                            key={t}
+                            onClick={(e) => handleSubmit(e, t)}
+                            className="bg-white border border-primary/30 text-primary text-[10px] px-3 py-1.5 rounded-full font-bold hover:bg-primary hover:text-white transition-colors shadow-sm"
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                  {isLoading && (
+                    <div className="flex justify-start">
+                      <div className="bg-white/90 text-text text-sm px-4 py-3 rounded-2xl rounded-tl-sm shadow-md border border-white/50 flex gap-1">
+                        <span className="animate-bounce">.</span><span className="animate-bounce" style={{ animationDelay: '0.2s' }}>.</span><span className="animate-bounce" style={{ animationDelay: '0.4s' }}>.</span>
+                      </div>
+                    </div>
+                  )}
+                  {/* <div ref={messagesEndRef} /> */}
                 </div>
 
                 {/* 챗봇 입력창 */}
                 <div className="p-4 bg-white/40 border-t border-white/30 backdrop-blur-md">
-                  <div className="flex items-center gap-2 bg-white rounded-full px-4 py-2.5 shadow-inner border border-purple-100">
-                    <input type="text" placeholder="어떤 시술을 찾고 계신가요?" className="flex-1 bg-transparent text-sm font-medium outline-none placeholder:text-text-muted/60" readOnly />
-                    <button className="w-8 h-8 rounded-full btn-primary flex items-center justify-center text-white shrink-0 cursor-pointer shadow-md">
+                  <form onSubmit={handleSubmit} aria-label="AI 채팅 입력" className="flex items-center gap-2 bg-white flex-1 rounded-full px-4 py-2.5 shadow-inner border border-purple-100">
+                    <input
+                      type="text"
+                      value={input}
+                      onChange={handleInputChange}
+                      placeholder="어떤 시술을 찾고 계신가요?"
+                      aria-label="채팅 메시지 입력"
+                      className="flex-1 bg-transparent text-sm font-medium outline-none placeholder:text-text-muted/60 disabled:opacity-50"
+                      disabled={isLoading}
+                    />
+                    <button type="submit" disabled={isLoading || !input.trim()} className="w-8 h-8 rounded-full btn-primary flex items-center justify-center text-white shrink-0 cursor-pointer shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
                       <Send className="w-3.5 h-3.5" />
                     </button>
-                  </div>
+                  </form>
                 </div>
               </div>
             </motion.div>
@@ -481,7 +685,9 @@ function App() {
                     </div>
                   ))}
                 </div>
-                <button className="btn-primary w-full py-3.5 mt-6 text-sm cursor-pointer font-bold">계속하기</button>
+                <button onClick={() => {
+                  document.getElementById('chat')?.scrollIntoView({ behavior: 'smooth' });
+                }} className="btn-primary w-full py-3.5 mt-6 text-sm cursor-pointer font-bold">계속하기</button>
               </div>
               <div className="absolute -top-10 -right-10 w-40 h-40 bg-secondary/30 rounded-full blur-3xl -z-10"></div>
               <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-violet-200/30 rounded-full blur-3xl -z-10"></div>
@@ -495,8 +701,8 @@ function App() {
         <div className="absolute -top-20 -right-20 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px]"></div>
         <div className="container mx-auto px-6 relative">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <motion.div variants={scaleIn} className="order-2 lg:order-1">
-              <div className="glass-premium rounded-3xl p-4 sm:p-6 max-w-md mx-auto h-[500px] flex flex-col">
+            <motion.div variants={scaleIn} className="order-2 lg:order-1 w-full relative z-20">
+              <div className="glass-premium rounded-3xl p-4 sm:p-6 max-w-lg lg:max-w-2xl mx-auto h-[600px] flex flex-col shadow-2xl border border-white/60">
                 <div className="bg-gradient-to-r from-accent to-primary-light rounded-2xl px-5 py-3 flex items-center gap-3 mb-4 shrink-0">
                   <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-white">
                     <Sparkles className="w-4 h-4" />
@@ -507,7 +713,7 @@ function App() {
                   </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2 custom-scrollbar">
+                <div ref={mainScrollRef} className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2 custom-scrollbar">
                   {messages.length === 0 && (
                     <div className="flex justify-start">
                       <div className="text-xs sm:text-sm px-4 py-2.5 rounded-2xl max-w-[85%] shadow-sm bg-white/80 text-text rounded-tl-sm whitespace-pre-wrap">
@@ -529,14 +735,87 @@ function App() {
                               const results = toolInvocation.result;
                               return (
                                 <div key={toolCallId} className="mt-2 space-y-2 w-full">
-                                  <p className="font-bold text-xs text-primary mb-1">🔍 샵 검색 결과</p>
-                                  {results.length > 0 ? results.map((shop: any, i: number) => (
-                                    <div key={i} className="bg-white rounded-xl px-3 py-2 text-xs shadow-sm border border-purple-50">
-                                      <p className="font-bold text-accent">{shop.name}</p>
-                                      <p className="text-[10px] text-text-muted">{shop.region} • ⭐ {shop.rating}</p>
-                                      <p className="text-[10px] mt-1 text-primary-dark font-medium">{shop.top_treatments?.join(' / ')}</p>
+                                  {results.length > 0 ? results.map((shop: any, i: number) => {
+                                    const treatment = shop.treatments?.[0];
+                                    const originalPrice = treatment ? Math.round(treatment.price * 1.3) : 0;
+                                    const discountRate = treatment ? Math.round((originalPrice - treatment.price) / originalPrice * 100) : 0;
+
+                                    return (
+                                      <a key={i} href={shop.lat && shop.lng ? `https://map.kakao.com/link/map/${encodeURIComponent(shop.name)},${shop.lat},${shop.lng}` : '#'} target="_blank" rel="noopener noreferrer" className="bg-white rounded-xl p-2.5 flex gap-3 shadow-sm border border-purple-50 mb-2 hover:shadow-md hover:border-primary/30 cursor-pointer transition-all no-underline text-inherit block">
+                                        <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden shrink-0">
+                                          {i === 0 && <div className="absolute top-0 left-0 bg-pink-500 text-white text-[9px] font-bold px-1.5 py-0.5 z-10 rounded-br-lg">HOT</div>}
+                                          {i === 1 && <div className="absolute top-0 left-0 bg-pink-500 text-white text-[9px] font-bold px-1.5 py-0.5 z-10 rounded-br-lg">HOT</div>}
+                                          {i === 2 && <div className="absolute top-0 left-0 bg-pink-400 text-white text-[9px] font-bold px-1.5 py-0.5 z-10 rounded-br-lg">NEW</div>}
+                                          {shop.image_url ? (
+                                            <img
+                                              src={shop.image_url}
+                                              alt={shop.name}
+                                              className="w-full h-full object-cover"
+                                              loading="lazy"
+                                              onError={(e) => { e.currentTarget.src = `https://picsum.photos/seed/${shop.id || Math.random()}/200/200`; }}
+                                            />
+                                          ) : (
+                                            <div className="w-full h-full bg-primary/10 flex items-center justify-center"><Sparkles className="w-6 h-6 text-primary/40" /></div>
+                                          )}
+                                        </div>
+                                        <div className="flex-1 flex flex-col justify-center min-w-0 py-0.5">
+                                          <h4 className="font-bold text-sm text-text mb-0.5 truncate">{treatment?.name || shop.name}</h4>
+                                          <p className="text-[10px] text-text-muted mb-1 truncate">
+                                            #{shop.category} {shop.treatments?.slice(0, 3).map((t: any) => `#${t.name.split(' ')[0]}`).join(' ')}
+                                          </p>
+                                          <div className="flex items-center gap-1 text-[10px] text-text-muted mb-1.5 truncate">
+                                            <span>{shop.region}</span>
+                                            <span className="w-px h-2 rounded-full bg-gray-300"></span>
+                                            <span className="truncate">{shop.name}</span>
+                                          </div>
+                                          {treatment && (
+                                            <div className="flex items-center gap-1.5 mt-auto flex-wrap mb-1">
+                                              <span className="font-extrabold text-text text-sm">{treatment.price.toLocaleString()}원</span>
+                                              <span className="font-bold text-pink-500 text-[10px]">{discountRate}%</span>
+                                              <span className="text-text-muted text-[10px] line-through decoration-gray-300">{originalPrice.toLocaleString()}원</span>
+                                            </div>
+                                          )}
+                                          <div className="flex flex-col gap-0.5 mt-auto">
+                                            {shop.operating_hours && (
+                                              <span className="text-[9px] text-text-muted">🕒 {shop.operating_hours}</span>
+                                            )}
+                                            {shop.address && (
+                                              <span className="text-[9px] text-primary truncate">📍 {shop.address} <span className="text-gray-400">· 클릭하여 지도 보기</span></span>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </a>
+                                    );
+                                  }) : <p className="text-xs text-text-muted">조건에 맞는 샵을 찾지 못했어요.</p>}
+
+                                  {/* Map UI for Main Chat */}
+                                  {results.length > 0 && results[0].lat && results[0].lng && (
+                                    <div className="w-full h-[200px] sm:h-[250px] rounded-2xl overflow-hidden mt-3 shadow-md border border-white/40 z-0 relative">
+                                      <MapContainer
+                                        center={[results[0].lat, results[0].lng] as [number, number]}
+                                        zoom={14}
+                                        style={{ height: '100%', width: '100%', zIndex: 0 }}
+                                        scrollWheelZoom={false}
+                                      >
+                                        <TileLayer
+                                          url="https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png"
+                                          attribution='&copy; <a href="https://carto.com/">CartoDB</a>'
+                                        />
+                                        {results.map((shop: any, idx: number) => {
+                                          if (!shop.lat || !shop.lng) return null;
+                                          return (
+                                            <Marker key={`marker-main-${idx}`} position={[shop.lat, shop.lng] as [number, number]}>
+                                              <Popup className="text-xs">
+                                                <strong>{shop.name}</strong><br />
+                                                <span className="text-gray-500">{shop.category}</span><br />
+                                                <a href={`https://map.kakao.com/link/map/${encodeURIComponent(shop.name)},${shop.lat},${shop.lng}`} target="_blank" rel="noopener noreferrer" className="text-primary mt-1 inline-block font-bold">카카오맵 열기</a>
+                                              </Popup>
+                                            </Marker>
+                                          );
+                                        })}
+                                      </MapContainer>
                                     </div>
-                                  )) : <p className="text-xs text-text-muted">조건에 맞는 샵을 찾지 못했어요.</p>}
+                                  )}
                                 </div>
                               )
                             } else {
@@ -549,6 +828,24 @@ function App() {
                       </div>
                     </div>
                   ))}
+
+                  {/* Quick Replies for Time/Schedule Selection (Main) */}
+                  {messages.length > 0 &&
+                    messages[messages.length - 1].role === 'assistant' &&
+                    (messages[messages.length - 1].content.includes('시간') || messages[messages.length - 1].content.includes('일정') || messages[messages.length - 1].content.includes('예약')) && (
+                      <div className="flex flex-wrap gap-1.5 mt-3 px-2 pb-2">
+                        {['이번 주 주말', '다음 주 평일', '오전 10시', '오후 2시', '오후 5시'].map((t) => (
+                          <button
+                            key={t}
+                            onClick={(e) => handleSubmit(e, t)}
+                            className="bg-white border border-primary/30 text-primary text-[11px] px-3 py-1.5 rounded-full font-bold hover:bg-primary hover:text-white transition-colors shadow-sm"
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
                   {isLoading && (
                     <div className="flex justify-start">
                       <div className="bg-white/80 text-text-muted text-xs px-4 py-2.5 rounded-2xl rounded-tl-sm shadow-sm flex gap-1">
@@ -556,15 +853,16 @@ function App() {
                       </div>
                     </div>
                   )}
-                  <div ref={messagesEndRef} />
+                  {/* <div ref={messagesEndRef} /> */}
                 </div>
 
-                <form onSubmit={handleSubmit} className="flex items-center gap-2 bg-white/60 rounded-full px-4 py-2 border border-white/50 shrink-0">
+                <form onSubmit={handleSubmit} aria-label="AI 채팅 입력" className="flex items-center gap-2 bg-white/60 rounded-full px-4 py-2 border border-white/50 shrink-0">
                   <input
                     type="text"
                     value={input}
                     onChange={handleInputChange}
                     placeholder="메시지 입력..."
+                    aria-label="채팅 메시지 입력"
                     className="flex-1 bg-transparent text-xs sm:text-sm outline-none placeholder:text-text-muted disabled:opacity-50"
                     disabled={isLoading}
                   />
@@ -628,7 +926,7 @@ function App() {
             ].map((shop, i) => (
               <motion.div key={i} variants={scaleIn} className="glass-premium rounded-3xl overflow-hidden card-hover card-depth glow-accent cursor-pointer img-card">
                 <div className="h-48 relative overflow-hidden">
-                  <img src={shop.img} alt={shop.name} className="w-full h-full object-cover" />
+                  <img src={shop.img} alt={shop.name} className="w-full h-full object-cover" loading="lazy" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
                   <div className="absolute top-4 right-4 glass-hero px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1 text-amber-600">
                     <Star className="w-3 h-3 fill-amber-400 text-amber-400" /> {shop.rating}
@@ -643,7 +941,10 @@ function App() {
                     </div>
                     <span className="text-base font-bold text-gradient">{shop.price}</span>
                   </div>
-                  <button className="w-full py-3 mt-2 rounded-2xl btn-primary text-sm flex items-center justify-center gap-2 cursor-pointer font-bold">
+                  <button onClick={() => {
+                    document.getElementById('chat')?.scrollIntoView({ behavior: 'smooth' });
+                    setInput(shop.name + ' 예약');
+                  }} className="w-full py-3 mt-2 rounded-2xl btn-primary text-sm flex items-center justify-center gap-2 cursor-pointer font-bold">
                     <Calendar className="w-4 h-4" /> 지금 예약
                   </button>
                 </div>
@@ -716,7 +1017,7 @@ function App() {
                     </div>
                   ))}
                 </div>
-                <button className="w-full mt-8 btn-primary py-3.5 text-sm flex items-center justify-center gap-1 cursor-pointer font-bold border border-white/20">
+                <button onClick={() => showToast('앱을 다운로드하시면 전체 피부 리포트를 확인하실 수 있습니다! 📱')} className="w-full mt-8 btn-primary py-3.5 text-sm flex items-center justify-center gap-1 cursor-pointer font-bold border border-white/20">
                   전체 리포트 보기 <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
@@ -883,9 +1184,17 @@ function App() {
                     type="email"
                     placeholder="이메일 주소"
                     className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-purple-500/50 transition-colors"
-                    readOnly
+                    id="newsletter-email"
                   />
-                  <button className="bg-gradient-to-r from-purple-600 to-fuchsia-600 px-5 py-2.5 rounded-xl text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer whitespace-nowrap">구독</button>
+                  <button onClick={() => {
+                    const emailInput = document.getElementById('newsletter-email') as HTMLInputElement;
+                    if (emailInput?.value && emailInput.value.includes('@')) {
+                      showToast('뉴스레터 구독이 완료되었습니다! 감사합니다 💌');
+                      emailInput.value = '';
+                    } else {
+                      showToast('올바른 이메일 주소를 입력해주세요 📧');
+                    }
+                  }} className="bg-gradient-to-r from-purple-600 to-fuchsia-600 px-5 py-2.5 rounded-xl text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer whitespace-nowrap">구독</button>
                 </div>
               </div>
               {/* SNS 아이콘 */}
@@ -943,6 +1252,13 @@ function App() {
           </div>
         </div>
       </footer>
+
+      {/* 토스트 알림 */}
+      {toast && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[999] bg-gradient-to-r from-primary to-primary-light text-white px-6 py-3 rounded-2xl shadow-2xl text-sm font-bold animate-bounce">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }
