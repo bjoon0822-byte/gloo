@@ -4,6 +4,7 @@ import { ArrowLeft, Star, Heart, MapPin, Clock, Phone, Copy, Share, MessageCircl
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { supabase } from '../lib/supabase';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import type { Session } from '@supabase/supabase-js';
 import type { Shop } from '../types';
 
@@ -73,6 +74,9 @@ export default function ShopDetailPage() {
         if (!shop) return;
 
         try {
+            // Trigger feedback
+            try { await Haptics.impact({ style: ImpactStyle.Medium }); } catch (e) { }
+
             if (isLiked) {
                 setIsLiked(false);
                 await supabase.from('wishlists').delete()
@@ -350,6 +354,9 @@ export default function ShopDetailPage() {
             <div className="fixed bottom-0 left-0 w-full z-50 bg-white/90 backdrop-blur-xl border-t border-gray-100 safe-area-bottom px-4 pt-3 pb-8">
                 <Link
                     to={`/chat?booking_shop_id=${shop.id}&shop_name=${encodeURIComponent(shop.name)}`}
+                    onClick={async () => {
+                        try { await Haptics.impact({ style: ImpactStyle.Heavy }); } catch (e) { }
+                    }}
                     className="w-full bg-gradient-to-r from-primary to-primary-light text-white font-extrabold text-[15px] py-4 rounded-2xl flex items-center justify-center gap-2 shadow-[0_8px_20px_-6px_rgba(255,107,158,0.5)] transition-transform active:scale-[0.98] cursor-pointer no-underline"
                 >
                     <MessageCircle className="w-5 h-5" />

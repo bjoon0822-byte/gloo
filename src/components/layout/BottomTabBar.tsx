@@ -1,5 +1,6 @@
 import { Home, MessageCircle, Search, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 /**
  * 📱 모바일 하단 탭 네비게이션
@@ -25,7 +26,14 @@ export default function BottomTabBar() {
                     return (
                         <button
                             key={tab.path}
-                            onClick={() => navigate(tab.path)}
+                            onClick={async () => {
+                                if (location.pathname !== tab.path) {
+                                    try {
+                                        await Haptics.impact({ style: ImpactStyle.Light });
+                                    } catch (e) { }
+                                    navigate(tab.path);
+                                }
+                            }}
                             className={`flex flex-col items-center justify-center gap-0.5 w-16 h-full transition-colors cursor-pointer ${isActive ? 'text-primary' : 'text-gray-400 hover:text-gray-600'
                                 }`}
                         >
