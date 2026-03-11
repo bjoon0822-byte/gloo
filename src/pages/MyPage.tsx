@@ -124,7 +124,10 @@ export default function MyPage() {
                 ].map((item) => (
                     <button
                         key={item.label}
-                        onClick={() => item.path !== '#' && navigate(item.path)}
+                        onClick={() => {
+                            if (item.path === '#') alert('해당 기능은 다음 업데이트에 추가될 예정입니다. 조금만 기다려주세요! 🛠️');
+                            else navigate(item.path);
+                        }}
                         className="w-full flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition-shadow cursor-pointer text-left"
                     >
                         <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
